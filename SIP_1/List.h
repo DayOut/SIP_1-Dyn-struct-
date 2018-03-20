@@ -24,9 +24,15 @@ public:
 
 	TElem<LISTTYPE>* findElem(LISTTYPE value);
 
-	void addToBegin	(const LISTTYPE& value);
-	void addToEnd	(const LISTTYPE& value);
-	void addSorted	(const LISTTYPE& value);
+	void addToBegin	(const LISTTYPE&		value);
+	void addToBegin	(const TElem<LISTTYPE>& value);
+
+	void addToEnd	(const LISTTYPE&		value);
+	//TODO: 
+	//void addToEnd(const TElem<LISTTYPE>&		value);
+
+	void addSorted	(const LISTTYPE&		value);
+	void addSorted	(const TElem<LISTTYPE>& value);
 
 	bool deleteElem	(const LISTTYPE& value);
 	void deleteAllElems();
@@ -109,6 +115,14 @@ void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
 }
 
 template <typename LISTTYPE>
+void List<LISTTYPE>::addToBegin(const TElem<LISTTYPE>& value)
+{
+	TElem<LISTTYPE> *tmp = value; // выделяем память на новый элемент
+	tmp->next = headPtr;
+	headPtr = tmp;
+}
+
+template <typename LISTTYPE>
 void List<LISTTYPE>::addToEnd(const LISTTYPE& value) // add_end / ...
 {
 	if (isEmpty()) // если список отсутствует ()
@@ -149,6 +163,31 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 		}
 		TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
 		tmp->inf = value;	// записываем значение 
+		tmp->next = currentPtr->next;
+		currentPtr->next = tmp;
+	}
+}
+
+template<typename LISTTYPE>
+void List<LISTTYPE>::addSorted(const TElem<LISTTYPE>& value)
+{
+	if (isEmpty() || value->inf <= headPtr->inf)
+	{
+		addToBegin(value);
+	}
+	else
+	{
+		currentPtr = headPtr;
+		while (currentPtr->next)
+		{
+			if (currentPtr->next->inf > value->inf)
+			{
+				break;
+			}
+			currentPtr = currentPtr->next;
+		}
+		TElem<LISTTYPE> *tmp; 
+		tmp = value;
 		tmp->next = currentPtr->next;
 		currentPtr->next = tmp;
 	}

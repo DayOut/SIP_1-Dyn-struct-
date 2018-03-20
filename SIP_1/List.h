@@ -27,18 +27,19 @@ public:
 	void addToBegin	(const LISTTYPE& value);
 	void addToEnd	(const LISTTYPE& value);
 	void addSorted	(const LISTTYPE& value);
-	void deleteElem	(const LISTTYPE& value);
+
+	bool deleteElem	(const LISTTYPE& value);
+	void deleteAllElems();
 	
 	void show();
 	void show(TElem<LISTTYPE> *list);
 
 	void Sort();
-	
 
 private:
-	void mergeSort(struct TElem<LISTTYPE> **root);
-	static TElem<LISTTYPE>* mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
-	void findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
+	void mergeSort (struct TElem<LISTTYPE> **root);
+	static TElem<LISTTYPE>* mergeList	(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
+	void findMid (struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
 };
 
 
@@ -154,14 +155,19 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::deleteElem(const LISTTYPE& value)
+bool List<LISTTYPE>::deleteElem(const LISTTYPE& value)
 {
 	TElem<LISTTYPE>* tmpPtr = new TElem<LISTTYPE>;
+	bool findFlag = false;
+
 	currentPtr = headPtr;
+
 	if (headPtr->inf == value)
 	{
 		tmpPtr = headPtr;
 		headPtr = headPtr->next;
+		delete tmpPtr;
+		findFlag = true;
 	}
 	else
 	{
@@ -169,38 +175,78 @@ void List<LISTTYPE>::deleteElem(const LISTTYPE& value)
 		{
 			if (currentPtr->next->inf == value)
 			{
+				findFlag = true;
 				break;
 			}
-			currentPtr = currentPtr->next;
+			else
+			{
+				currentPtr = currentPtr->next;
+			}
 		}
-		tmpPtr = currentPtr->next;
-		currentPtr->next = tmpPtr->next;
+		if (findFlag)
+		{
+			tmpPtr = currentPtr->next;
+			currentPtr->next = tmpPtr->next;
+			delete tmpPtr;
+		}
 	}
-		
-	delete tmpPtr;
+
+	if (!findFlag)
+	{
+		std::wcout << L"Elem was not found... \n";
+	}
+	return findFlag;
+}
+
+template<typename LISTTYPE>
+void List<LISTTYPE>::deleteAllElems() 
+{
+	currentPtr = headPtr;
+
+	while (headPtr)
+	{
+		currentPtr = headPtr;
+		headPtr = headPtr->next;
+		delete currentPtr;
+	}
+	std::wcout << L"All elems deleted!\n";
+	currentPtr = NULL;
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::show()
 {
 	if (COUNT > 100) return;
-
-	currentPtr = headPtr;
-	while (currentPtr)
-	{
-		std::cout << currentPtr->inf << "\t";
-		currentPtr = currentPtr->next; // доходим до конца списка
+	if(headPtr)
+	{	
+		currentPtr = headPtr;
+		while (currentPtr)
+		{
+			std::cout << currentPtr->inf << "\t";
+			currentPtr = currentPtr->next; // доходим до конца списка
+		}
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
+	else
+	{
+		std::wcout << "List is empty!";
+	}
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::show(TElem<LISTTYPE> *list)
 {
-	TElem<LISTTYPE> *tmp = list;
-	for (; tmp; tmp = tmp->next)
-		cout << tmp->inf << " ";
-	cout << endl;
+	if (headPtr)
+	{
+		TElem<LISTTYPE> *tmp = list;
+		for (; tmp; tmp = tmp->next)
+			cout << tmp->inf << " ";
+		cout << endl;
+	}
+	else
+	{
+		std::wcout << "List is empty!";
+	}
 }
 
 template <typename LISTTYPE>

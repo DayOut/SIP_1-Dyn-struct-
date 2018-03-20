@@ -21,25 +21,24 @@ public:
 
 	bool isEmpty() const;
 	bool operator!() const;
-	bool search(LISTTYPE value);
 
+	TElem<LISTTYPE>* findElem(LISTTYPE value);
 
-	void addToBegin(const LISTTYPE& value);
-	void addToEnd(LISTTYPE value);
-	void addSorted(LISTTYPE value);
-	void delElem(LISTTYPE value);
+	void addToBegin	(const LISTTYPE& value);
+	void addToEnd	(const LISTTYPE& value);
+	void addSorted	(const LISTTYPE& value);
+	void deleteElem	(const LISTTYPE& value);
 	
 	void show();
 	void show(TElem<LISTTYPE> *list);
 
-	//----------------------------------------------------------------------------------------------------------------------------
-	void mergeSort();
+	void Sort();
+	
+
+private:
+	void mergeSort(struct TElem<LISTTYPE> **root);
 	static TElem<LISTTYPE>* mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
 	void findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
-	void mergeSort(struct TElem<LISTTYPE> **root);
-	//----------------------------------------------------------------------------------------------------------------------------
-
-
 };
 
 
@@ -84,7 +83,7 @@ bool List<LISTTYPE>::operator!() const
 }
 
 template<typename LISTTYPE>
-bool List<LISTTYPE>::search(LISTTYPE value)
+typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE value)
 {
 	currentPtr = headPtr;
 	for (; currentPtr; currentPtr = currentPtr->next)
@@ -92,13 +91,12 @@ bool List<LISTTYPE>::search(LISTTYPE value)
 		if (currentPtr->inf == value)
 		{
 			std::wcout << L"\nЁлемент " << value << L" есть в списке \n";
-			return true;
+			return currentPtr;
 		}
 	}
 	std::wcout << L"\nЁлемента " << value << L" нет в списке \n";
-	return false;
+	return 0;
 }
-
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
@@ -110,7 +108,7 @@ void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
 }
 
 template <typename LISTTYPE>
-void List<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
+void List<LISTTYPE>::addToEnd(const LISTTYPE& value) // add_end / ...
 {
 	if (isEmpty()) // если список отсутствует ()
 	{
@@ -131,7 +129,7 @@ void List<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::addSorted(LISTTYPE value)
+void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 {
 	if (isEmpty() || value <= headPtr->inf)
 	{
@@ -152,9 +150,34 @@ void List<LISTTYPE>::addSorted(LISTTYPE value)
 		tmp->inf = value;	// записываем значение 
 		tmp->next = currentPtr->next;
 		currentPtr->next = tmp;
-
-
 	}
+}
+
+template<typename LISTTYPE>
+void List<LISTTYPE>::deleteElem(const LISTTYPE& value)
+{
+	TElem<LISTTYPE>* tmpPtr = new TElem<LISTTYPE>;
+	currentPtr = headPtr;
+	if (headPtr->inf == value)
+	{
+		tmpPtr = headPtr;
+		headPtr = headPtr->next;
+	}
+	else
+	{
+		while (currentPtr->next)
+		{
+			if (currentPtr->next->inf == value)
+			{
+				break;
+			}
+			currentPtr = currentPtr->next;
+		}
+		tmpPtr = currentPtr->next;
+		currentPtr->next = tmpPtr->next;
+	}
+		
+	delete tmpPtr;
 }
 
 template<typename LISTTYPE>
@@ -181,9 +204,28 @@ void List<LISTTYPE>::show(TElem<LISTTYPE> *list)
 }
 
 template <typename LISTTYPE>
-void List<LISTTYPE>::mergeSort()
+void List<LISTTYPE>::Sort()
 {
 	mergeSort(&headPtr);
+}
+
+template <typename LISTTYPE>
+void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
+{
+	struct TElem<LISTTYPE> *list1, *list2;
+	struct TElem<LISTTYPE> *headPtr = *root;
+	if ((headPtr == NULL) || (headPtr->next == NULL))
+	{
+		return;
+	}
+
+	findMid(headPtr, &list1, &list2);
+
+	mergeSort(&list1);
+	mergeSort(&list2);
+
+	*root = mergeList(list1, list2);
+
 }
 
 template<typename LISTTYPE>
@@ -242,24 +284,6 @@ void List<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE
 	}
 }
 
-template <typename LISTTYPE>
-void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
-{
-	struct TElem<LISTTYPE> *list1, *list2;
-	struct TElem<LISTTYPE> *headPtr = *root;
-	if ((headPtr == NULL) || (headPtr->next == NULL))
-	{
-		return;
-	}
-
-	findMid(headPtr, &list1, &list2);
-
-	mergeSort(&list1);
-	mergeSort(&list2);
-
-	*root = mergeList(list1, list2);
-
-}
 
 
 

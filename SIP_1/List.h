@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename LISTTYPE>
-class Tlist
+class List
 {
 private:
 	template <typename LISTTYPE>
@@ -15,18 +15,20 @@ private:
 										   //currentPtr - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
 
 public:
-	Tlist();
-	Tlist(const Tlist& value);
-	~Tlist();
+	List();
+	List(const List& value);
+	~List();
 
 	bool isEmpty() const;
 	bool operator!() const;
+	bool search(LISTTYPE value);
+
 
 	void addToBegin(const LISTTYPE& value);
 	void addToEnd(LISTTYPE value);
 	void addSorted(LISTTYPE value);
+	void delElem(LISTTYPE value);
 	
-
 	void show();
 	void show(TElem<LISTTYPE> *list);
 
@@ -42,13 +44,13 @@ public:
 
 
 template <typename LISTTYPE>
-Tlist<LISTTYPE>::Tlist()
+List<LISTTYPE>::List()
 {
 	headPtr = NULL;
 }
 
 template <typename LISTTYPE>
-Tlist<LISTTYPE>::Tlist(const Tlist<LISTTYPE>& value)
+List<LISTTYPE>::List(const List<LISTTYPE>& value)
 {
 	//TODO: Construct with class in input data
 	headPtr->inf = value;
@@ -56,7 +58,7 @@ Tlist<LISTTYPE>::Tlist(const Tlist<LISTTYPE>& value)
 }
 
 template <typename LISTTYPE>
-Tlist<LISTTYPE>::~Tlist()
+List<LISTTYPE>::~List()
 {
 	if (headPtr)
 	{
@@ -70,19 +72,36 @@ Tlist<LISTTYPE>::~Tlist()
 }
 
 template <typename LISTTYPE>
-bool Tlist<LISTTYPE>::isEmpty() const
+bool List<LISTTYPE>::isEmpty() const
 {
 	return headPtr == 0;
 }
 
 template <typename LISTTYPE>
-bool Tlist<LISTTYPE>::operator!() const
+bool List<LISTTYPE>::operator!() const
 {
 	return (headPtr != NULL);
 }
 
+template<typename LISTTYPE>
+bool List<LISTTYPE>::search(LISTTYPE value)
+{
+	currentPtr = headPtr;
+	for (; currentPtr; currentPtr = currentPtr->next)
+	{
+		if (currentPtr->inf == value)
+		{
+			std::wcout << L"\nЁлемент " << value << L" есть в списке \n";
+			return true;
+		}
+	}
+	std::wcout << L"\nЁлемента " << value << L" нет в списке \n";
+	return false;
+}
+
+
 template <typename LISTTYPE>
-void Tlist<LISTTYPE>::addToBegin(const LISTTYPE& value)
+void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
 {
 	TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выдел€ем пам€ть на новый элемент
 	tmp->inf = value;	// записываем значение 
@@ -91,7 +110,7 @@ void Tlist<LISTTYPE>::addToBegin(const LISTTYPE& value)
 }
 
 template <typename LISTTYPE>
-void Tlist<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
+void List<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
 {
 	if (isEmpty()) // если список отсутствует ()
 	{
@@ -112,7 +131,7 @@ void Tlist<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
 }
 
 template<typename LISTTYPE>
-void Tlist<LISTTYPE>::addSorted(LISTTYPE value)
+void List<LISTTYPE>::addSorted(LISTTYPE value)
 {
 	if (isEmpty() || value <= headPtr->inf)
 	{
@@ -123,11 +142,15 @@ void Tlist<LISTTYPE>::addSorted(LISTTYPE value)
 		currentPtr = headPtr;
 		while (currentPtr->next)
 		{
-			currentPtr = currentPtr->next; // доходим до конца списка
+			if (currentPtr->next->inf > value)
+			{
+				break;
+			}
+			currentPtr = currentPtr->next;
 		}
 		TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выдел€ем пам€ть на новый элемент
 		tmp->inf = value;	// записываем значение 
-		tmp->next = NULL;
+		tmp->next = currentPtr->next;
 		currentPtr->next = tmp;
 
 
@@ -135,7 +158,7 @@ void Tlist<LISTTYPE>::addSorted(LISTTYPE value)
 }
 
 template<typename LISTTYPE>
-void Tlist<LISTTYPE>::show()
+void List<LISTTYPE>::show()
 {
 	if (COUNT > 100) return;
 
@@ -149,7 +172,7 @@ void Tlist<LISTTYPE>::show()
 }
 
 template<typename LISTTYPE>
-void Tlist<LISTTYPE>::show(TElem<LISTTYPE> *list)
+void List<LISTTYPE>::show(TElem<LISTTYPE> *list)
 {
 	TElem<LISTTYPE> *tmp = list;
 	for (; tmp; tmp = tmp->next)
@@ -158,13 +181,13 @@ void Tlist<LISTTYPE>::show(TElem<LISTTYPE> *list)
 }
 
 template <typename LISTTYPE>
-void Tlist<LISTTYPE>::mergeSort()
+void List<LISTTYPE>::mergeSort()
 {
 	mergeSort(&headPtr);
 }
 
 template<typename LISTTYPE>
-typename Tlist<LISTTYPE>::TElem<LISTTYPE>* Tlist<LISTTYPE>::mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2)
+typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2)
 {
 	struct TElem<LISTTYPE> tempheadPtr = { 0, NULL }, *tail = &tempheadPtr;
 
@@ -180,7 +203,7 @@ typename Tlist<LISTTYPE>::TElem<LISTTYPE>* Tlist<LISTTYPE>::mergeList(struct TEl
 }
 
 template<typename LISTTYPE>
-void Tlist<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2)
+void List<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2)
 {
 	/**
 	* ¬озвращает указатель на элемент структуры TElem<LISTTYPE> р€дом с серединой списка
@@ -220,7 +243,7 @@ void Tlist<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYP
 }
 
 template <typename LISTTYPE>
-void Tlist<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
+void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
 {
 	struct TElem<LISTTYPE> *list1, *list2;
 	struct TElem<LISTTYPE> *headPtr = *root;

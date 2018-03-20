@@ -24,6 +24,7 @@ public:
 
 	void addToBegin(const LISTTYPE& value);
 	void addToEnd(LISTTYPE value);
+	void addSorted(LISTTYPE value);
 	
 
 	void show();
@@ -107,6 +108,29 @@ void Tlist<LISTTYPE>::addToEnd(LISTTYPE value) // add_end / ...
 		tmp->inf = value;	// записываем значение 
 		tmp->next = NULL;
 		currentPtr->next = tmp;
+	}
+}
+
+template<typename LISTTYPE>
+void Tlist<LISTTYPE>::addSorted(LISTTYPE value)
+{
+	if (isEmpty() || value <= headPtr->inf)
+	{
+		addToBegin(value);
+	}
+	else
+	{
+		currentPtr = headPtr;
+		while (currentPtr->next)
+		{
+			currentPtr = currentPtr->next; // доходим до конца списка
+		}
+		TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
+		tmp->inf = value;	// записываем значение 
+		tmp->next = NULL;
+		currentPtr->next = tmp;
+
+
 	}
 }
 

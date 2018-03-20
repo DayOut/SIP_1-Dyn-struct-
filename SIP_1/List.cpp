@@ -1,0 +1,1 @@
+// Because the class is a template, this file useless

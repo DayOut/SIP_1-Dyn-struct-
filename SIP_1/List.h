@@ -25,14 +25,14 @@ public:
 	TElem<LISTTYPE>* findElem(LISTTYPE value);
 
 	void addToBegin	(const LISTTYPE&		value);
-	void addToBegin	(const TElem<LISTTYPE>& value);
+	void addToBegin	(TElem<LISTTYPE>* value);
 
 	void addToEnd	(const LISTTYPE&		value);
 	//TODO: 
 	//void addToEnd(const TElem<LISTTYPE>&		value);
 
-	void addSorted	(const LISTTYPE&		value);
-	void addSorted	(const TElem<LISTTYPE>& value);
+	void addSorted	(const LISTTYPE& value);
+	void findAndSort(const LISTTYPE& value);
 
 	bool deleteElem	(const LISTTYPE& value);
 	void deleteAllElems();
@@ -115,7 +115,7 @@ void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
 }
 
 template <typename LISTTYPE>
-void List<LISTTYPE>::addToBegin(const TElem<LISTTYPE>& value)
+void List<LISTTYPE>::addToBegin(TElem<LISTTYPE>* value)
 {
 	TElem<LISTTYPE> *tmp = value; // выдел€ем пам€ть на новый элемент
 	tmp->next = headPtr;
@@ -169,9 +169,42 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::addSorted(const TElem<LISTTYPE>& value)
+void List<LISTTYPE>::findAndSort(const LISTTYPE& value)
 {
-	if (isEmpty() || value->inf <= headPtr->inf)
+	//find an element
+	currentPtr = headPtr;
+	TElem<LISTTYPE>* tmp = 0;
+	bool findFlag = false;
+
+	if (headPtr->inf == value)
+	{
+		tmp = headPtr;
+		headPtr = headPtr->next;
+		findFlag = true;
+	}
+
+	for (; !findFlag && currentPtr; currentPtr = currentPtr->next)
+	{
+		if (currentPtr->next && currentPtr->next->inf == value)
+		{
+			std::wcout << L"\nЁлемент " << value << L" есть в списке \n";
+
+			//cut this elem from the list
+			tmp = currentPtr->next;
+			currentPtr->next = tmp->next;
+
+			findFlag = true;
+			break;
+		}
+	}
+	if (!findFlag)
+	{
+		std::wcout << L"Element doesn't not exist! \n";
+		return;
+	}
+	// done
+	//sort it
+	if (isEmpty() || value <= headPtr->inf)
 	{
 		addToBegin(value);
 	}
@@ -180,14 +213,12 @@ void List<LISTTYPE>::addSorted(const TElem<LISTTYPE>& value)
 		currentPtr = headPtr;
 		while (currentPtr->next)
 		{
-			if (currentPtr->next->inf > value->inf)
+			if (currentPtr->next->inf > value)
 			{
 				break;
 			}
 			currentPtr = currentPtr->next;
 		}
-		TElem<LISTTYPE> *tmp; 
-		tmp = value;
 		tmp->next = currentPtr->next;
 		currentPtr->next = tmp;
 	}

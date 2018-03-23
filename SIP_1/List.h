@@ -13,8 +13,12 @@ private:
 
 	TElem<LISTTYPE> *headPtr, *currentPtr; // переменная указатель на голову списка
 										   //currentPtr - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
+	
+
 
 public:
+	int deep = 0;
+	long long comparison = 0;
 	List();
 	List(const List& value);
 	~List();
@@ -328,6 +332,7 @@ void List<LISTTYPE>::Sort()
 template <typename LISTTYPE>
 void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
 {
+	deep++;
 	struct TElem<LISTTYPE> *list1, *list2;
 	struct TElem<LISTTYPE> *headPtr = *root;
 	if ((headPtr == NULL) || (headPtr->next == NULL))
@@ -387,6 +392,7 @@ void List<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE
 		while (fast != NULL)
 		{
 			fast = fast->next;
+			comparison++;
 			if (fast != NULL)
 			{
 				slow = slow->next;

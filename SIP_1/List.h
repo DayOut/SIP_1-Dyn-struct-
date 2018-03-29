@@ -25,13 +25,16 @@ public:
 
 	bool isEmpty() const;
 	bool operator!() const;
+	List<LISTTYPE>& operator=(List<LISTTYPE>& right);
+	List<LISTTYPE>& operator++();
 
+	TElem<LISTTYPE>* getHeadPtr();
 	TElem<LISTTYPE>* findElem(LISTTYPE value);
 
-	void addToBegin	(const LISTTYPE&		value);
+	void addToBegin	(const LISTTYPE& value);
 	void addToBegin	(TElem<LISTTYPE>* value);
 
-	void addToEnd	(const LISTTYPE&		value);
+	void addToEnd	(const LISTTYPE& value);
 	//TODO: 
 	//void addToEnd(const TElem<LISTTYPE>&		value);
 
@@ -70,6 +73,7 @@ List<LISTTYPE>::List(const List<LISTTYPE>& value)
 template <typename LISTTYPE>
 List<LISTTYPE>::~List()
 {
+	unsigned int start = clock();
 	if (headPtr)
 	{
 		while (headPtr) // поэлементно удал€ем все жлементы списка
@@ -79,6 +83,8 @@ List<LISTTYPE>::~List()
 			delete tmp;
 		}
 	}
+	unsigned int end = clock();
+	std::cout << "\n”даление списка: " << end-start << std::endl;
 }
 
 template <typename LISTTYPE>
@@ -92,6 +98,42 @@ bool List<LISTTYPE>::operator!() const
 {
 	return (headPtr != NULL);
 }
+
+template <typename LISTTYPE>
+ List<LISTTYPE>& List<LISTTYPE>::operator=(List<LISTTYPE>& right)
+{
+	if (!right.isEmpty())
+	{
+		// правый список это тот, из которого нужно присвоить значени€
+		TElem<LISTTYPE> *rightHead = right.getHead(); // получение головы списка из правого
+		TElem<LISTTYPE> *rightCurrElem = rightHead; // текущий элемент из этого же списка
+
+		if (this == &right) 
+		{
+			return *this; // проверка на самоприсваивание
+		}
+
+		if (!isEmpty())// если левый список был не пустым 
+		{
+			del_all(); // ќчищаем его
+		}
+
+		do
+		{
+			addToEnd(rightCurrElem->Inf); // просто добавл€ем в конец левого списка элементы из правого
+			rightCurrElem = rightCurrElem->Next;
+		} while (rightCurrElem != rightHead);
+
+
+	}
+	return *this;
+}
+
+ template<typename LISTTYPE>
+ typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::getHeadPtr()
+ {
+	 return headPtr;
+ }
 
 template<typename LISTTYPE>
 typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE value)
@@ -107,6 +149,20 @@ typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE valu
 	}
 	std::wcout << L"\nЁлемента " << value << L" нет в списке \n";
 	return 0;
+}
+
+template<typename LISTTYPE>
+List<LISTTYPE>& List<LISTTYPE>::operator++()
+{
+	if (currentPtr)
+	{
+		currentPtr = currentPtr->Next;
+	}
+	else
+	{
+		currentPtr = headPtr;
+	}
+	return *this;
 }
 
 template <typename LISTTYPE>
@@ -207,6 +263,7 @@ void List<LISTTYPE>::findAndSort(const LISTTYPE& value)
 		return;
 	}
 	// done
+
 	//sort it
 	if (isEmpty() || value <= headPtr->inf)
 	{

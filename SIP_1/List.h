@@ -7,51 +7,55 @@ private:
 	template <typename LISTTYPE>
 	struct TElem //структура самого элемента списка
 	{
-		LISTTYPE inf;
+		LISTTYPE		inf;
 		TElem<LISTTYPE> *next;
 	};
 
-	TElem<LISTTYPE> *headPtr_, *currentPtr_; // переменная указатель на голову списка
-										   //currentPtr_ - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
+	TElem<LISTTYPE>		*headPtr_, 
+						*currentPtr_;	// переменная указатель на голову списка
+										//currentPtr_ - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
 	
 public:
-	int deep = 0;
-	long long comparison = 0;
-	List();
-	List(const List& value);
-	~List();
+	int					deep = 0;
+	long long			comparison = 0;
+						List();
+						List(const List& value);
+						~List();
 
-	bool			isEmpty() const;
-	bool			operator!() const;
-	List<LISTTYPE>& operator=(List<LISTTYPE>& right);
-	List<LISTTYPE>& operator++();
+	bool				isEmpty() const;
+	bool				operator!() const;
+	List<LISTTYPE>&		operator=(List<LISTTYPE>& right);
+	List<LISTTYPE>&		operator++();
 
 	TElem<LISTTYPE>*	getHeadPtr();
+
 	LISTTYPE&			getCurrInfPtr();
+	LISTTYPE			getCurrElem();
+	void				setCurrToHead();
+
 	TElem<LISTTYPE>*	findElem(LISTTYPE value);
-	void setCurrToHead();
 
-	void addToBegin	(const LISTTYPE& value);
-	void addToBegin	(TElem<LISTTYPE>* value);
+	void				addToBegin	(const LISTTYPE& value);
+	void				addToBegin	(TElem<LISTTYPE>* value);
 
-	void addToEnd	(const LISTTYPE& value);
+	void				addToEnd	(const LISTTYPE& value);
 
-	void addSorted	(const LISTTYPE& value);
-	void sortCurrElem();
+	void				addSorted	(const LISTTYPE& value);
+	void				sortCurrElem();
 
-	bool deleteElem	(const LISTTYPE& value);
-	void deleteAllElems();
+	bool				deleteElem	(const LISTTYPE& value);
+	void				deleteAllElems();
 	
-	void show();
-	void show(TElem<LISTTYPE> *list);
+	void				show();
+	void				show(TElem<LISTTYPE> *list);
 
-	void sort();
+	void				sort();
 	//bubblesort for check
 
 private:
-	void mergeSort (struct TElem<LISTTYPE> **root);
+	void				mergeSort (struct TElem<LISTTYPE> **root);
 	static TElem<LISTTYPE>* mergeList	(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
-	void findMid (struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
+	void				findMid (struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
 };
 
 
@@ -96,7 +100,7 @@ bool List<LISTTYPE>::operator!() const
 }
 
 template <typename LISTTYPE>
- List<LISTTYPE>& List<LISTTYPE>::operator=(List<LISTTYPE>& right)
+List<LISTTYPE>& List<LISTTYPE>::operator=(List<LISTTYPE>& right)
 {
 	if (!right.isEmpty())
 	{
@@ -125,14 +129,15 @@ template <typename LISTTYPE>
 	return *this;
 }
 
- template<typename LISTTYPE>
- typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::getHeadPtr()
+template<typename LISTTYPE>
+typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::getHeadPtr()
  {
+
 	 return headPtr_;
  }
 
- template <typename LISTTYPE>
- LISTTYPE& List<LISTTYPE>::getCurrInfPtr()
+template <typename LISTTYPE>
+LISTTYPE& List<LISTTYPE>::getCurrInfPtr()
  {
 	 if (currentPtr_)
 	 {
@@ -145,6 +150,22 @@ template <typename LISTTYPE>
 	 }
 	 return nullptr; // i have no idea what happened, that you receive this value
  }
+
+template<typename LISTTYPE>
+LISTTYPE List<LISTTYPE>::getCurrElem()
+{
+	if (!currentPtr_)
+	{
+		currentPtr_ = headPtr_;
+	}
+	return currentPtr_->inf;
+}
+
+template <typename LISTTYPE>
+void List<LISTTYPE>::setCurrToHead()
+{
+	currentPtr_ = headPtr_;
+}
 
 template<typename LISTTYPE>
 typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE value)
@@ -162,18 +183,12 @@ typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE valu
 	return 0;
 }
 
-template <typename LISTTYPE>
-void List<LISTTYPE>::setCurrToHead()
-{
-	currentPtr_ = headPtr_;
-}
-
 template<typename LISTTYPE>
 List<LISTTYPE>& List<LISTTYPE>::operator++()
 {
 	if (currentPtr_)
 	{
-		currentPtr_ = currentPtr_->Next;
+		currentPtr_ = currentPtr_->next;
 	}
 	else
 	{
@@ -245,7 +260,6 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 	}
 }
 
-
 template<typename LISTTYPE>
 void List<LISTTYPE>::sortCurrElem()
 {
@@ -291,11 +305,11 @@ void List<LISTTYPE>::sortCurrElem()
 		TElem<LISTTYPE> *tmpCurrentPtr = headPtr_;
 		while (tmpCurrentPtr->next)
 		{
-			if (tmpCurrentPtr->inf < currentPtr_->inf)
+			if (tmpCurrentPtr->next->inf > currentPtr_->inf)
 			{
 				break;
 			}
-			currentPtr_ = currentPtr_->next;
+			tmpCurrentPtr = tmpCurrentPtr->next;
 		}
 		currentPtr_->next = tmpCurrentPtr->next;
 		tmpCurrentPtr->next = currentPtr_;

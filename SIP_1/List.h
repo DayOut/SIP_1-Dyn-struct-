@@ -493,7 +493,7 @@ void List<LISTTYPE>::bubleSort() {
 	if(!isChanged)
 		std::cout << "Сортировка была выполнена верно." << std::endl;
 	else 
-
+		std::cout << "Была ошибка в отсортированном списке." << std::endl;
 }
 /*
 template<typename LISTTYPE>

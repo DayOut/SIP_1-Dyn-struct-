@@ -1,4 +1,6 @@
 #pragma once
+int rec = 0, comp = 0;
+
 
 template <typename LISTTYPE>
 class List
@@ -195,7 +197,7 @@ LISTTYPE& List<LISTTYPE>::getCurrInfPtr()
 		 currentPtr = headPtr;
 		 return currentPtr->inf;
 	 }
-	 return nullptr; // i have no idea what happened, that you receive this value
+	 return nullptr; // i have no idea what happened, if you receive this value
  }
 
 template<typename LISTTYPE>
@@ -452,6 +454,49 @@ void List<LISTTYPE>::sort()
 }
 
 template<typename LISTTYPE>
+void List<LISTTYPE>::bubleSort() {
+	TElem<LISTTYPE> *tmp = NULL, *prev = NULL;
+	currentPtr = headPtr;
+	bool flag = false, isChanged = false;
+	do
+	{
+		flag = false;
+		currentPtr = headPtr;
+		while (currentPtr->next)
+		{
+			if (currentPtr->inf > currentPtr->next->inf)
+			{
+				isChanged = true;
+				if (currentPtr == headPtr)
+				{
+					tmp = currentPtr;
+					currentPtr = tmp->next;
+					tmp->next = currentPtr->next;
+					currentPtr->next = tmp;
+					headPtr = currentPtr;
+					flag = true;
+				}
+				else
+				{
+					tmp = currentPtr;
+					currentPtr = tmp->next;
+					tmp->next = currentPtr->next;
+					currentPtr->next = tmp;
+					prev->next = currentPtr;
+					flag = true;
+				}
+			}
+			prev = currentPtr;
+			currentPtr = currentPtr->next;
+		}
+	} while (flag);
+	if(!isChanged)
+		std::cout << "Сортировка была выполнена верно." << std::endl;
+	else 
+
+}
+/*
+template<typename LISTTYPE>
 void List<LISTTYPE>::bubleSort()
 {
 	bool swapFlag = false;
@@ -470,6 +515,7 @@ void List<LISTTYPE>::bubleSort()
 
 		}
 	}
+
 	if (!swapFlag)
 	{
 		std::cout << "Перестановок не происходило! \n";
@@ -478,19 +524,20 @@ void List<LISTTYPE>::bubleSort()
 	{
 		std::cout << "Перестановки были! D: \n";
 	}
-}
+}*/
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
 {
 	struct TElem<LISTTYPE> *list1, *list2;
-	struct TElem<LISTTYPE> *headPtr = *root;
-	if ((headPtr == NULL) || (headPtr->next == NULL))
+	struct TElem<LISTTYPE> *headPtr1 = *root;
+
+	if ((headPtr1 == NULL) || (headPtr1->next == NULL))
 	{
 		return;
 	}
 
-	findMid(headPtr, &list1, &list2);
+	findMid(headPtr1, &list1, &list2);
 
 	mergeSort(&list1);
 	mergeSort(&list2);
@@ -506,6 +553,7 @@ typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::mergeList(struct TElem
 
 	while ((list1 != NULL) && (list2 != NULL))
 	{
+		comp++;
 		struct TElem<LISTTYPE> **min = (list1->inf < list2->inf) ? &list1 : &list2;
 		struct TElem<LISTTYPE> *next = (*min)->next;
 		tail = tail->next = *min;

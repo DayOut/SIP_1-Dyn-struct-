@@ -1,10 +1,14 @@
 #pragma once
 int rec = 0, comp = 0;
 
+template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
 class List
 {
+	
+	friend ListIterator<LISTTYPE>;
+
 private:
 	template <typename LISTTYPE>
 	struct TElem //структура самого элемента списка
@@ -26,6 +30,7 @@ public:
 	void				setSize(int value);
 	int					getSize();
 
+	// TODO: move this to iterator
 	bool				isEmpty() const;
 	bool				operator!() const;
 	List<LISTTYPE>&		operator=(List<LISTTYPE>& right);

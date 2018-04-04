@@ -35,6 +35,7 @@ public:
 	bool				operator!() const;
 	List<LISTTYPE>&		operator=(List<LISTTYPE>& right);
 	List<LISTTYPE>&		operator++();
+	//----------------------------------
 
 	TElem<LISTTYPE>*	getHeadPtr();
 

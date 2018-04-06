@@ -30,12 +30,10 @@ public:
 	void				setSize(int value);
 	int					getSize();
 
-	// TODO: move this to iterator
 	bool				isEmpty() const;
 	bool				operator!() const;
 	List<LISTTYPE>&		operator=(List<LISTTYPE>& right);
 	List<LISTTYPE>&		operator++();
-	//----------------------------------
 
 	TElem<LISTTYPE>*	getHeadPtr();
 

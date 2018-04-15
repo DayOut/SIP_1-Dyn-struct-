@@ -1,610 +1,663 @@
 #pragma once
-int rec = 0, comp = 0;
 
 template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
 class List
 {
-	
-	friend ListIterator<LISTTYPE>;
+
+    friend ListIterator<LISTTYPE>;
 
 private:
-	template <typename LISTTYPE>
-	struct TElem //структура самого элемента списка
-	{
-		LISTTYPE		inf;
-		TElem<LISTTYPE> *next;
-	};
+    template <typename LISTTYPE>
+    struct TElem //структура самого элемента списка
+    {
+        LISTTYPE		inf;
+        TElem<LISTTYPE> *next;
+    };
 
-	TElem<LISTTYPE>		*headPtr, 
-						*currentPtr;	// переменная указатель на голову списка
-										//currentPtr - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
-	int					size = 0;
-	
+    TElem<LISTTYPE>		*headPtr,
+        *tailPtr,
+        *currentPtr;	// переменная указатель на голову списка
+                        //currentPtr - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
+
+    TElem<LISTTYPE>*	getHeadPtr();
+    void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
+
 public:
-						List();
-						List(const List& value);
-						~List();
+    List();
+    //List(const List& value);
+    ~List();
 
-	void				setSize(int value);
-	int					getSize();
+    //bool				isEmpty() const;
+    bool				operator!() const;
+    List<LISTTYPE>&		operator++();
+    const List<LISTTYPE>& operator= (List<LISTTYPE>& right);
 
-	bool				isEmpty() const;
-	bool				operator!() const;
-	List<LISTTYPE>&		operator=(List<LISTTYPE>& right);
-	List<LISTTYPE>&		operator++();
 
-	TElem<LISTTYPE>*	getHeadPtr();
 
-	LISTTYPE&			getCurrInfPtr();
-	LISTTYPE			getCurrElem();
-	void				setCurrToHead();
+    LISTTYPE&			getCurrInfPtr();
+    LISTTYPE			getCurrElem();
+    void				setCurrToHead();
 
-	TElem<LISTTYPE>*	findElem(LISTTYPE value);
 
-	void				addToBegin	(const LISTTYPE& value);
-	void				addToBegin	(TElem<LISTTYPE>* value);
+    TElem<LISTTYPE>*	findElem(LISTTYPE value);
 
-	void				addToEnd	(const LISTTYPE& value);
+    void				addToBegin(const LISTTYPE& value);
 
-	void				addSorted	(const LISTTYPE& value);
-	void				sortCurrElem();
+    void				addToEnd(const LISTTYPE& value);
 
-	bool				deleteElem	(const LISTTYPE& value);
-	void				deleteAllElems();
-	
-	void				show();
-	void				show(TElem<LISTTYPE> *list);
+    void				addSorted(const LISTTYPE& value);
+    void				sortCurrElem();
 
-	void				sort();
-	void				bubleSort();
+    bool				deleteElem(const LISTTYPE& value);
+    void				deleteAllElems();
+
+    void				show();
+    void				show(TElem<LISTTYPE> *list);
+
+    void				sort();
+    void                findTail();
+    bool				bubleSort();
 
 private:
-	void				mergeSort (struct TElem<LISTTYPE> **root);
-	static TElem<LISTTYPE>* mergeList	(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
-	void				findMid (struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
+    void				mergeSort(struct TElem<LISTTYPE> **root);
+    static TElem<LISTTYPE>* mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2);
+    void				findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2);
 };
 
 
 template <typename LISTTYPE>
 List<LISTTYPE>::List()
 {
-	headPtr = NULL;
-}
-
-template <typename LISTTYPE>
-List<LISTTYPE>::List(const List<LISTTYPE>& value)
-{
-	//TODO: Construct with class in input data
-	headPtr->inf = value;
-	headPtr->next = NULL;
+    headPtr = NULL;
+    tailPtr = NULL;
+    currentPtr = NULL;
 }
 
 template <typename LISTTYPE>
 List<LISTTYPE>::~List()
 {
-	if (headPtr)
-	{
-		while (headPtr) // поэлементно удаляем все жлементы списка
-		{
-			TElem<LISTTYPE> *tmp = headPtr;
-			headPtr = headPtr->next;
-			delete tmp;
-		}
-	}
-}
-
-template <typename LISTTYPE>
-void List<LISTTYPE>::setSize(int value)
-{
-	size = value;
-}
-
-template <typename LISTTYPE>
-int List<LISTTYPE>::getSize()
-{
-	return size;
-}
-
-template <typename LISTTYPE>
-bool List<LISTTYPE>::isEmpty() const
-{
-	return headPtr == 0;
+    deleteAllElems();
+    headPtr = NULL;
+    tailPtr = NULL;
+    currentPtr = NULL;
 }
 
 template <typename LISTTYPE>
 bool List<LISTTYPE>::operator!() const
 {
-	return (headPtr == NULL);
+    return (headPtr == NULL);
 }
 
 template <typename LISTTYPE>
-List<LISTTYPE>& List<LISTTYPE>::operator=(List<LISTTYPE>& right)
+const List<LISTTYPE>& List<LISTTYPE>::operator= (List<LISTTYPE>& right)
 {
-	if (!right.isEmpty())
-	{
-		// правый список это тот, из которого нужно присвоить значения
-		TElem<LISTTYPE> *rightHead = right.getHeadPtr(); // получение головы списка из правого
-		TElem<LISTTYPE> *rightCurrElem = rightHead; // текущий элемент из этого же списка
 
-		if (this == &right) 
-		{
-			return *this; // проверка на самоприсваивание
-		}
+    if (this == &right) //проверка на самоприсваивание 
+    {
+        return *this;
+    }
 
-		if (!isEmpty())// если левый список был не пустым 
-		{
-			deleteAllElems();
-		}
+    TElem<LISTTYPE> *rightHead = right.getHeadPtr();
+    TElem<LISTTYPE> *rightCurrent = rightHead;
 
-		TElem<LISTTYPE> *tmpHeadPtr = new TElem<LISTTYPE>;
-		tmpHeadPtr->inf = rightHead->inf;
-		tmpHeadPtr->next = NULL;
+    TElem<LISTTYPE> *tmp = headPtr, *prevTmp = NULL; // курсоры в левом списке
 
-		headPtr = tmpHeadPtr;
-		currentPtr = headPtr;
-		
-		if (rightCurrElem->next)
-		{
-			rightCurrElem = rightCurrElem->next;
-		}
+    while (tmp || rightCurrent)
+    {
+        if (rightCurrent && tmp)
+        {
+            tmp->inf = rightCurrent->inf;
+        }
+        else if (tmp && !rightCurrent)
+        {
+            currentPtr = tmp;
+            tmp = prevTmp;
+            deleteCurrentElement(prevTmp);
+        }
+        else if (!tmp && rightCurrent)
+        {
+            addToEnd(rightCurrent->inf);
+        }
 
-		do
-		{
-			//addToEnd(rightCurrElem->inf); // просто добавляем в конец левого списка элементы из правого
-			TElem<LISTTYPE> *tmpPtr = new TElem<LISTTYPE>; // выделяем память на новый элемент
-			tmpPtr->inf = rightCurrElem->inf;	// записываем значение 
-			tmpPtr->next = NULL;
+        if (prevTmp != tmp)
+            prevTmp = (tmp) ? tmp : NULL;
 
-			currentPtr->next= tmpPtr;
-			rightCurrElem	= rightCurrElem->next;
-			currentPtr		= currentPtr->next;
-		} while (rightCurrElem != NULL);
+        if (tmp)
+            tmp = (tmp->next == NULL) ? NULL : tmp->next;
 
-		currentPtr = headPtr;
-		size = right.getSize();
-	}
-	return *this;
+        if (rightCurrent)
+            rightCurrent = (rightCurrent->next == NULL) ? NULL : rightCurrent->next;
+    }
+    return *this;
 }
 
 template<typename LISTTYPE>
 List<LISTTYPE>& List<LISTTYPE>::operator++()
 {
-	if (currentPtr)
-	{
-		currentPtr = currentPtr->next;
-	}
-	else
-	{
-		currentPtr = headPtr;
-	}
-	return *this;
+    currentPtr = (currentPtr) ? currentPtr->next : ((headPtr) ? headPtr : NULL);
+    return *this;
 }
 
 template<typename LISTTYPE>
 typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::getHeadPtr()
- {
-
-	 return headPtr;
- }
+{
+    return (headPtr) ? headPtr : NULL;
+}
 
 template <typename LISTTYPE>
 LISTTYPE& List<LISTTYPE>::getCurrInfPtr()
- {
-	 if (currentPtr)
-	 {
-		 return currentPtr->inf;
-	 }
-	 else
-	 {
-		 currentPtr = headPtr;
-		 return currentPtr->inf;
-	 }
-	 return nullptr; // i have no idea what happened, if you receive this value
- }
+{
+    if (headPtr)
+    {
+        if (currentPtr)
+        {
+            return currentPtr->inf;
+        }
+    }
+    return false;
+}
 
 template<typename LISTTYPE>
 LISTTYPE List<LISTTYPE>::getCurrElem()
 {
-	if (!currentPtr)
-	{
-		currentPtr = headPtr;
-	}
-	return currentPtr->inf;
+    if (headPtr)
+    {
+        if (currentPtr)
+        {
+            return currentPtr->inf;
+        }
+        else
+        {
+            currentPtr = headPtr;
+            return currentPtr->inf;
+        }
+    }
+    return false;
+}
+
+template<typename LISTTYPE>
+void List<LISTTYPE>::deleteCurrentElement(TElem<LISTTYPE> *prevTmp)
+{
+    TElem<LISTTYPE> *tmp;
+    if (!headPtr)
+        return;
+    else if (currentPtr == headPtr)
+    {
+        tmp = headPtr;
+
+        if (headPtr->next == headPtr)
+        {
+            headPtr = NULL;
+        }
+        else
+        {
+            currentPtr = headPtr->next;
+            headPtr = currentPtr;
+            tailPtr->next = headPtr;
+        }
+    }
+    else
+    {
+        tmp = currentPtr;
+        currentPtr = currentPtr->next;
+        prevTmp->next = currentPtr;
+
+    }
+    delete tmp;
 }
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::setCurrToHead()
 {
-	currentPtr = headPtr;
+    if (headPtr)
+    {
+        currentPtr = headPtr;
+    }
 }
 
 template<typename LISTTYPE>
 typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::findElem(LISTTYPE value)
 {
-	currentPtr = headPtr;
-	for (; currentPtr; currentPtr = currentPtr->next)
-	{
-		if (currentPtr->inf == value)
-		{
-			std::wcout << L"\nЭлемент \"" << value << L"\" есть в списке \n";
-			return currentPtr;
-		}
-	}
-	std::wcout << L"\nЭлемента \"" << value << L"\" нет в списке \n";
-	return 0;
+    if (headPtr)
+    {
+        for (currentPtr = headPtr; currentPtr; currentPtr = currentPtr->next)
+        {
+            if (currentPtr->inf == value)
+            {
+                return currentPtr;
+            }
+        }
+    }
+    return NULL;
 }
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::addToBegin(const LISTTYPE& value)
 {
-	TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
-	tmp->inf = value;	// записываем значение 
-	tmp->next = headPtr;
-	headPtr = tmp;
+    TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
+    tmp->inf = value;	// записываем значение 
+    tmp->next = headPtr;
+    headPtr = tmp;
+    if (!tailPtr)
+    {
+        tailPtr = headPtr;
+    }
 }
 
 template <typename LISTTYPE>
-void List<LISTTYPE>::addToBegin(TElem<LISTTYPE>* value)
+void List<LISTTYPE>::addToEnd(const LISTTYPE& value)
 {
-	TElem<LISTTYPE> *tmp = value; // выделяем память на новый элемент
-	tmp->next = headPtr;
-	headPtr = tmp;
-}
+    TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
+    tmp->inf = value;	// записываем значение 
+    tmp->next = NULL;
 
-template <typename LISTTYPE>
-void List<LISTTYPE>::addToEnd(const LISTTYPE& value) // add_end / ...
-{
-	if (isEmpty()) // если список отсутствует ()
-	{
-		addToBegin(value);
-	}
-	else
-	{
-		currentPtr = headPtr;
-		while (currentPtr->next)
-		{
-			currentPtr = currentPtr->next; // доходим до конца списка
-		}
-		TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
-		tmp->inf = value;	// записываем значение 
-		tmp->next = NULL;
-		currentPtr->next = tmp;
-	}
+    if (headPtr && tailPtr)
+    {
+        tailPtr->next = tmp;
+        tailPtr = tmp;
+    }
+    else if(!headPtr)
+    {
+        headPtr = tmp;
+        tailPtr = headPtr;
+    }
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 {
-	if (isEmpty() || value <= headPtr->inf)
-	{
-		addToBegin(value);
-	}
-	else
-	{
-		currentPtr = headPtr;
-		while (currentPtr->next)
-		{
-			if (currentPtr->next->inf > value)
-			{
-				break;
-			}
-			currentPtr = currentPtr->next;
-		}
-		TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
-		tmp->inf = value;	// записываем значение 
-		tmp->next = currentPtr->next;
-		currentPtr->next = tmp;
-	}
+    //if (isEmpty() || value <= headPtr->inf)
+    if (!this || value <= headPtr->inf)
+    {
+        addToBegin(value);
+    }
+    else
+    {
+        currentPtr = headPtr;
+        while (currentPtr->next)
+        {
+            if (currentPtr->next->inf > value)
+            {
+                break;
+            }
+            currentPtr = currentPtr->next;
+        }
+        TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
+        tmp->inf = value;	// записываем значение 
+        tmp->next = currentPtr->next;
+        currentPtr->next = tmp;
+    }
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::sortCurrElem()
 {
-	//find an element
-	TElem<LISTTYPE>* tmp = 0;
-	bool findFlag = false;
+    // проверка на пустой список
+    if (!headPtr)
+    {
+        return;
+    }
 
-	if (headPtr == currentPtr)
-	{
-		headPtr = headPtr->next;
-		findFlag = true;
-	}
+    // проверка на наличие "текущего" элемента
+    if (!currentPtr)
+    {
+        currentPtr = headPtr;
+    }
 
-	for (; !findFlag && currentPtr; currentPtr = currentPtr->next)
-	{
-		if (currentPtr->next && currentPtr->next->inf == currentPtr->inf)
-		{
-			std::wcout << L"\nЭлемент " << currentPtr->inf << L" есть в списке \n";
+    TElem<LISTTYPE> *tmp = headPtr;
 
-			//cut this elem from the list
-			tmp = currentPtr->next;
-			currentPtr->next = tmp->next;
+    if (currentPtr == headPtr)
+    {
+        if (currentPtr->inf <= headPtr->next->inf)
+            return; // значит сортировать смысла нет
+                    //вырезали 
+        headPtr = headPtr->next;
+    }
+    else
+    {
+        //находим эл-т перед текущим
+        while (tmp->next != currentPtr)
+        {
+            tmp = tmp->next;
+        }
 
-			findFlag = true;
-			break;
-		}
-	}
+        if (currentPtr == tailPtr)
+        {
+            if (tmp->inf < currentPtr->inf)
+                return;// снова нет смысла сортировать
 
-	if (!findFlag)
-	{
-		std::wcout << L"Element doesn't not exist! \n";
-		return;
-	}
+                       //вырезаем
+            tailPtr = tmp;
+            tailPtr = currentPtr->next;
+        }
+        else
+        {
+            if (tmp->inf < currentPtr->inf && currentPtr->inf < currentPtr->next->inf)
+                return;// снова нет смысла сортировать
 
-	// done, now sort it
+                       // вырезаем
+            tmp->next = currentPtr->next;
+            tmp = currentPtr;
+            currentPtr = headPtr;
+        }
+    }
 
-	if (isEmpty())
-	{
-		addToBegin(currentPtr->inf);
-	}
-	else
-	{
-		TElem<LISTTYPE> *tmpCurrentPtr = headPtr;
-		while (tmpCurrentPtr->next)
-		{
-			if (tmpCurrentPtr->next->inf > currentPtr->inf)
-			{
-				break;
-			}
-			tmpCurrentPtr = tmpCurrentPtr->next;
-		}
-		currentPtr->next = tmpCurrentPtr->next;
-		tmpCurrentPtr->next = currentPtr;
+    tmp = (currentPtr->inf > currentPtr->next->inf) ? currentPtr->next : headPtr;
 
-	}	
+    while (currentPtr->inf > tmp->inf)
+    {
+        // нашли нужное место
+        if (tmp->next && currentPtr->inf <= tmp->next->inf)
+        {
+            //вставили
+            currentPtr->next = tmp->next;
+            tmp->next = currentPtr;
+            break;
+        }
+        
+        if (tmp == tailPtr) //если дошли до конца списка
+        {
+            currentPtr->next = NULL;
+            tailPtr->next = currentPtr;
+            tailPtr = currentPtr;
+            
+            break;
+        }
+        tmp = tmp->next;
+    }
+
+    /*
+    // проверка на пустой список
+    if (headPtr && tailPtr)
+    {
+        // проверка на наличие "текущего" элемента
+        if (!currentPtr)
+            currentPtr = headPtr;
+
+        TElem<LISTTYPE> *tmp = headPtr;
+
+        if (currentPtr == headPtr)
+        {
+            if (currentPtr->Inf <= headPtr->next->Inf)
+                return; // значит сортировать смысла нет
+
+            headPtr = headPtr->next;
+        }
+        else
+        {
+            //находим эл-т перед текущим
+            while (tmp->next != currentPtr)
+            {
+                tmp = tmp->next;
+            }
+
+            if (currentPtr == tail)
+            {
+                if (tmp->Inf < currentPtr->Inf)
+                    return;// снова нет смысла сортировать
+
+                //вырезали
+                tail = tmp;
+                tail = currentPtr->next;
+            }
+            else
+            {
+                if (tmp->Inf < currentPtr->Inf && currentPtr->Inf < currentPtr->next->Inf)
+                    return;// снова нет смысла сортировать
+                
+                //вырезали
+                tmp->next = currentPtr->next;
+                tmp = currentPtr;
+                currentPtr = tmp->next;
+            }
+        }
+
+
+
+        // если элемент больше следующего - необходимо искать место текущему элементу во второй части списка
+        // иначе до этого места
+        tmp = (currentPtr->Inf > currentPtr->next->Inf) ? currentPtr->next : head;
+
+        while (currentPtr->Inf > tmp->Inf)
+        {
+            // нашли нужное место
+            if (currentPtr->Inf <= tmp->next->Inf)
+            {
+                //вставили
+                currentPtr->next = tmp->next;
+                tmp->next = currentPtr;
+                break;
+            }
+            else if (tmp == tail) //если дошли до конца списка
+            {
+                currentPtr->next = head;
+                tail->next = currentPtr;
+                tail = currentPtr;
+                break;
+            }
+            tmp = tmp->next;
+        }
+    }*/
 }
 
 template<typename LISTTYPE>
 bool List<LISTTYPE>::deleteElem(const LISTTYPE& value)
 {
-	TElem<LISTTYPE>* tmpPtr = new TElem<LISTTYPE>;
-	bool findFlag = false;
+    TElem<LISTTYPE>* tmpPtr = NULL;
+    bool findFlag = false;
 
-	currentPtr = headPtr;
+    currentPtr = headPtr;
 
-	if (headPtr->inf == value)
-	{
-		tmpPtr = headPtr;
-		headPtr = headPtr->next;
-		delete tmpPtr;
-		findFlag = true;
-	}
-	else
-	{
-		while (currentPtr->next)
-		{
-			if (currentPtr->next->inf == value)
-			{
-				findFlag = true;
-				break;
-			}
-			else
-			{
-				currentPtr = currentPtr->next;
-			}
-		}
-		if (findFlag)
-		{
-			tmpPtr = currentPtr->next;
-			currentPtr->next = tmpPtr->next;
-			delete tmpPtr;
-		}
-	}
+    if (headPtr->inf == value)
+    {
+        tmpPtr = headPtr;
+        headPtr = headPtr->next;
+        delete tmpPtr;
+        findFlag = true;
+    }
+    else
+    {
+        while (currentPtr->next)
+        {
+            if (currentPtr->next->inf == value)
+            {
+                findFlag = true;
+                break;
+            }
+            else
+            {
+                currentPtr = currentPtr->next;
+            }
+        }
+        if (findFlag)
+        {
+            tmpPtr = currentPtr->next;
+            currentPtr->next = tmpPtr->next;
+            delete tmpPtr;
+        }
+    }
 
-	if (!findFlag)
-	{
-		std::wcout << L"Elem was not found... \n";
-	}
-	return findFlag;
+    if (!findFlag)
+    {
+        std::wcout << L"Elem was not found... \n";
+    }
+    return findFlag;
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::deleteAllElems() 
+void List<LISTTYPE>::deleteAllElems()
 {
-	currentPtr = headPtr;
+    currentPtr = headPtr;
 
-	while (headPtr)
-	{
-		currentPtr = headPtr;
-		headPtr = headPtr->next;
-		delete currentPtr;
-	}
-	std::wcout << L"All elems deleted!\n";
-	currentPtr = NULL;
+    while (headPtr)
+    {
+        currentPtr = headPtr;
+        headPtr = headPtr->next;
+        delete currentPtr;
+    }
+    currentPtr = NULL;
+    headPtr = tailPtr = NULL;
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::show()
-{
-	if (size > 100) return;
-	if(headPtr)
-	{	
-		currentPtr = headPtr;
-		while (currentPtr)
-		{
-			std::cout << currentPtr->inf << "\t";
-			currentPtr = currentPtr->next; // доходим до конца списка
-		}
-		std::cout << std::endl;
-	}
-	else
-	{
-		std::wcout << "List is empty!\n";
-	}
+{/*
+    if (SHOW_FLAG)
+    {
+        if (headPtr)
+        {
+            currentPtr = headPtr;
+            while (currentPtr)
+            {
+                std::cout << currentPtr->inf << "\t";
+                currentPtr = currentPtr->next; // доходим до конца списка
+            }
+            std::cout << std::endl;
+        }
+        else
+        {
+            std::wcout << L"Список пуст!\n";
+        }
+    }*/
 }
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::show(TElem<LISTTYPE> *list)
 {
-	if (headPtr)
-	{
-		TElem<LISTTYPE> *tmp = list;
-		for (; tmp; tmp = tmp->next)
-			cout << tmp->inf << " ";
-		cout << endl;
-	}
-	else
-	{
-		std::wcout << "List is empty!";
-	}
+    if (headPtr)
+    {
+        TElem<LISTTYPE> *tmp = list;
+        for (; tmp; tmp = tmp->next)
+            cout << tmp->inf << " ";
+        cout << endl;
+    }
+    else
+    {
+        std::wcout << "List is empty!";
+    }
 }
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::sort()
 {
-	mergeSort(&headPtr);
+    mergeSort(&headPtr);
+    findTail();
 }
 
-template<typename LISTTYPE>
-void List<LISTTYPE>::bubleSort() {
-	TElem<LISTTYPE> *tmp = NULL, *prev = NULL;
-	currentPtr = headPtr;
-	bool flag = false, isChanged = false;
-	do
-	{
-		flag = false;
-		currentPtr = headPtr;
-		while (currentPtr->next)
-		{
-			if (currentPtr->inf > currentPtr->next->inf)
-			{
-				isChanged = true;
-				if (currentPtr == headPtr)
-				{
-					tmp = currentPtr;
-					currentPtr = tmp->next;
-					tmp->next = currentPtr->next;
-					currentPtr->next = tmp;
-					headPtr = currentPtr;
-					flag = true;
-				}
-				else
-				{
-					tmp = currentPtr;
-					currentPtr = tmp->next;
-					tmp->next = currentPtr->next;
-					currentPtr->next = tmp;
-					prev->next = currentPtr;
-					flag = true;
-				}
-			}
-			prev = currentPtr;
-			currentPtr = currentPtr->next;
-		}
-	} while (flag);
-	if(!isChanged)
-		std::cout << "Сортировка была выполнена верно." << std::endl;
-	else 
-		std::cout << "Была ошибка в отсортированном списке." << std::endl;
-}
-/*
-template<typename LISTTYPE>
-void List<LISTTYPE>::bubleSort()
+template <typename LISTTYPE>
+void List<LISTTYPE>::findTail()
 {
-	bool swapFlag = false;
-	TElem<LISTTYPE>* l1 = headPtr, *l2 = 0;
-	for (l2; l2; l2 = l2->next)
-	{
-		for(l1; l1->next; l1 = l1->next)
-		{ 
-			if (l1->inf > l1->next->inf)
-			{
-				LISTTYPE tmp = l1->inf;
-				l1->inf = l1->next->inf;
-				l1->next->inf = tmp;
-				swapFlag = true;
-			}
+    if (!headPtr)
+    {
+        return;
+    }
 
-		}
-	}
+    TElem<LISTTYPE> *tmp = headPtr;
+    while (tmp->next)
+    {
+        tmp = tmp->next;
+    }
+    tailPtr = tmp;
+}
 
-	if (!swapFlag)
-	{
-		std::cout << "Перестановок не происходило! \n";
-	}
-	else
-	{
-		std::cout << "Перестановки были! D: \n";
-	}
-}*/
+template<typename LISTTYPE>
+bool List<LISTTYPE>::bubleSort() {
+    TElem<LISTTYPE> *tmp = NULL, *prev = NULL;
+    currentPtr = headPtr;
+    bool flag = false, isChanged = false;
+    do
+    {
+        flag = false;
+        currentPtr = headPtr;
+        while (currentPtr->next)
+        {
+            if (currentPtr->inf > currentPtr->next->inf)
+            {
+                return false;
+            }
+            prev = currentPtr;
+            currentPtr = currentPtr->next;
+        }
+    } while (flag);
+
+    return true;
+}
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::mergeSort(struct TElem<LISTTYPE> **root)
 {
-	struct TElem<LISTTYPE> *list1, *list2;
-	struct TElem<LISTTYPE> *headPtr1 = *root;
+    struct TElem<LISTTYPE> *list1, *list2;
+    struct TElem<LISTTYPE> *headPtr1 = *root;
 
-	if ((headPtr1 == NULL) || (headPtr1->next == NULL))
-	{
-		return;
-	}
+    if ((headPtr1 == NULL) || (headPtr1->next == NULL))
+    {
+        return;
+    }
 
-	findMid(headPtr1, &list1, &list2);
+    findMid(headPtr1, &list1, &list2);
 
-	mergeSort(&list1);
-	mergeSort(&list2);
+    mergeSort(&list1);
+    mergeSort(&list2);
 
-	*root = mergeList(list1, list2);
-
+    *root = mergeList(list1, list2);
 }
 
 template<typename LISTTYPE>
 typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::mergeList(struct TElem<LISTTYPE> *list1, struct TElem<LISTTYPE> *list2)
 {
-	struct TElem<LISTTYPE> tempheadPtr = { 0, NULL }, *tail = &tempheadPtr;
+    struct TElem<LISTTYPE> tempheadPtr = { 0, NULL }, *tail = &tempheadPtr;
 
-	while ((list1 != NULL) && (list2 != NULL))
-	{
-		comp++;
-		struct TElem<LISTTYPE> **min = (list1->inf < list2->inf) ? &list1 : &list2;
-		struct TElem<LISTTYPE> *next = (*min)->next;
-		tail = tail->next = *min;
-		*min = next;
-	}
-	tail->next = list1 ? list1 : list2;
-	return tempheadPtr.next;
+    while ((list1 != NULL) && (list2 != NULL))
+    {
+        struct TElem<LISTTYPE> **min = (list1->inf < list2->inf) ? &list1 : &list2;
+        struct TElem<LISTTYPE> *next = (*min)->next;
+        tail = tail->next = *min;
+        *min = next;
+    }
+    tail->next = list1 ? list1 : list2;
+    return tempheadPtr.next;
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::findMid(struct TElem<LISTTYPE> *root, struct TElem<LISTTYPE> **list1, struct TElem<LISTTYPE> **list2)
+void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> **list1, TElem<LISTTYPE> **list2)
 {
-	/**
-	* Возвращает указатель на элемент структуры TElem<LISTTYPE> рядом с серединой списка
-	* и после обрезаем оригинальный списко перед этим элементом
-	*/
-	struct TElem<LISTTYPE> *slow, *fast;
+    /**
+    * Возвращает указатель на элемент структуры TElem<LISTTYPE> рядом с серединой списка
+    * и после обрезаем оригинальный списко перед этим элементом
+    */
+    TElem<LISTTYPE> *slow, *fast;
 
-	//в случае пустого списка (или один элемент)
-	if ((root == NULL) || (root->next == NULL))
-	{
-		*list1 = root;
-		*list2 = NULL;
-		return;
-	}
-	else
-	{
-		/*
-		два курсора, fast движется в 2 раза быстрее slow, на одну итерацию slow происходит 2 итерации fast
-		за счет этого находится середина списка (когда fast == NULL, slow будет ровно в центре списка)
-		*/
-		slow = root;
-		fast = root->next;
-		while (fast != NULL)
-		{
-			fast = fast->next;
-			if (fast != NULL)
-			{
-				slow = slow->next;
-				fast = fast->next;
-			}
-		}
+    //в случае пустого списка (или один элемент)
+    if ((root == NULL) || (root->next == NULL))
+    {
+        *list1 = root;
+        *list2 = NULL;
+        return;
+    }
+    else
+    {
+        /*
+        два курсора, fast движется в 2 раза быстрее slow, на одну итерацию slow происходит 2 итерации fast
+        за счет этого находится середина списка (когда fast == NULL, slow будет ровно в центре списка)
+        */
+        slow = root;
+        fast = root->next;
+        while (fast != NULL)
+        {
+            fast = fast->next;
+            if (fast != NULL)
+            {
+                slow = slow->next;
+                fast = fast->next;
+            }
+        }
 
-		*list1 = root;
-		*list2 = slow->next;
-		slow->next = NULL;
-	}
+        *list1 = root;
+        *list2 = slow->next;
+        slow->next = NULL;
+    }
 }
 
 

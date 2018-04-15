@@ -7,15 +7,15 @@ class ListIterator
 {
     const List &list;
 public:
-								ListIterator(const List<LISTTYPE>&);
-								ListIterator(const ListIterator<LISTTYPE>&);
+    ListIterator(const List<LISTTYPE>&);
+    ListIterator(const ListIterator<LISTTYPE>&);
 
     void                        setIteratorToHead();
-	
-	ListIterator<LISTTYPE>&		operator++();
-	ListIterator<LISTTYPE>&		operator=(ListIterator<LISTTYPE>& right);
-	bool						operator!();
-	
+
+    ListIterator<LISTTYPE>&		operator++();
+    ListIterator<LISTTYPE>&		operator=(ListIterator<LISTTYPE>& right);
+    bool						operator!();
+
 
 private:
     typename List<LISTTYPE>::TElem<LISTTYPE>* listPtr, *listHeadPtr;
@@ -60,6 +60,6 @@ ListIterator<LISTTYPE>&	ListIterator<LISTTYPE>::operator=(ListIterator<LISTTYPE>
 
 template <typename LISTTYPE>
 bool ListIterator<LISTTYPE>::operator!()
-{   
+{
     return (listPtr->next ? true : false);
 }

@@ -281,79 +281,67 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::sortCurrElem()
-{
-    // проверка на пустой список
-    if (!headPtr)
-    {
-        return;
-    }
-
-    // проверка на наличие "текущего" элемента
-    if (!currentPtr)
-    {
-        currentPtr = headPtr;
-    }
-
-    TElem<LISTTYPE> *tmp = headPtr;
-
-    if (currentPtr == headPtr)
-    {
-        if (currentPtr->inf <= headPtr->next->inf)
-            return; // значит сортировать смысла нет
-        //вырезали 
-        headPtr = headPtr->next;
-    }
-    else
-    {
-        //находим эл-т перед текущим
-        while (tmp->next != currentPtr)
+{   
+    if (headPtr && tailPtr) {
+        if (!currentPtr)
         {
-            tmp = tmp->next;
+            currentPtr = headPtr;
         }
 
-        if (currentPtr == tailPtr)
+        TElem<LISTTYPE> *tmp = headPtr;
+        if (currentPtr == headPtr) //если текущий голова
         {
-            if (tmp->inf < currentPtr->inf)
-                return;// снова нет смысла сортировать
-
-                       //вырезаем
-            tailPtr = tmp;
-            tailPtr = currentPtr->next;
+            headPtr = headPtr->next; //вырезаем элемент
         }
         else
         {
-            if (tmp->inf < currentPtr->inf && currentPtr->inf < currentPtr->next->inf)
-                return;// снова нет смысла сортировать
+            //находим элемент перед текущим и вырезаем текущий
+            while (tmp->next != currentPtr)
+            {
+                tmp = tmp->next;
+            }
 
-            // вырезаем
-            tmp->next = currentPtr->next;
-            tmp = currentPtr;
-            currentPtr = headPtr;
+            if (tmp->next != tailPtr) // если не хвост
+            {
+                tmp->next = currentPtr->next;
+            }
+            else // если хвост
+            {
+                tailPtr = tmp;
+                tailPtr->next = NULL;
+            }
         }
-    }
 
-    tmp = (currentPtr->inf > currentPtr->next->inf) ? currentPtr->next : headPtr;
 
-    while (currentPtr->inf > tmp->inf)
-    {
-        // нашли нужное место
-        if (tmp->next && currentPtr->inf <= tmp->next->inf)
+        // Если следующий элемент после сортируемого меньше сортируемого - идем сразу в ту половину списка а иначе идем с начала
+        tmp = currentPtr->next ? ((currentPtr->inf > currentPtr->next->inf) ? currentPtr->next : headPtr) : headPtr;
+
+        // Или же лучше сделать так
+        // tmp = headPtr;
+
+        if (currentPtr->inf <= headPtr->inf)
         {
-            //вставили
-            currentPtr->next = tmp->next;
-            tmp->next = currentPtr;
-            break;
+            currentPtr->next = headPtr;
+            headPtr = currentPtr;
         }
-        
-        if (tmp == tailPtr) //если дошли до конца списка
+
+        while (currentPtr->inf > tmp->inf)
         {
-            currentPtr->next = NULL;
-            tailPtr->next = currentPtr;
-            tailPtr = currentPtr;
-            
-            break;
+            if (tmp->next && currentPtr->inf <= tmp->next->inf) //нашли нужное место
+            {
+                currentPtr->next = tmp->next; //вставляем
+                tmp->next = currentPtr;
+                break;
+            }
+            else if (tmp == tailPtr) //если дошли до конца списка
+            {
+                currentPtr->next = NULL;
+                tailPtr->next = currentPtr;
+                tailPtr = currentPtr;
+                break;
+            }
+            tmp = tmp->next;
         }
-        tmp = tmp->next;
     }
 }
 
@@ -541,11 +529,12 @@ void List<LISTTYPE>::show()
     {
         if (headPtr)
         {
-            currentPtr = headPtr;
-            while (currentPtr)
+            TElem<LISTTYPE> *tmp = headPtr;
+            //currentPtr = headPtr;
+            while (tmp)
             {
-                std::cout << currentPtr->inf << "\t";
-                currentPtr = currentPtr->next; // доходим до конца списка
+                std::cout << tmp->inf << "\t";
+                tmp = tmp->next; // доходим до конца списка
             }
             std::cout << std::endl;
         }

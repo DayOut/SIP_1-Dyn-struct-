@@ -26,12 +26,13 @@ private:
     void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
 
 public:
-    List();
-    ~List();
+                        List();
+                        List(const List<LISTTYPE>& right);
+                        ~List();
 
     bool				operator!() const;
     List<LISTTYPE>&		operator++();
-    const List<LISTTYPE>& operator= (List<LISTTYPE>& right);
+    const List<LISTTYPE>& operator= (const List<LISTTYPE>& right);
 
 
 
@@ -74,6 +75,17 @@ List<LISTTYPE>::List()
 }
 
 template <typename LISTTYPE>
+List<LISTTYPE>::List(const List<LISTTYPE>& right)
+{
+    headPtr = currentPtr = tailPtr = NULL;
+
+    if (right.headPtr)
+    {
+        *this = right;
+    }
+}
+
+template <typename LISTTYPE>
 List<LISTTYPE>::~List()
 {
     deleteAllElems();
@@ -86,15 +98,63 @@ bool List<LISTTYPE>::operator!() const
 }
 
 template <typename LISTTYPE>
-const List<LISTTYPE>& List<LISTTYPE>::operator= (List<LISTTYPE>& right)
+const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
 {
+    if (this == &right) //проверка на самоприсваивание 
+    {
+        return *this;
+    }
+    
+    TElem<LISTTYPE> *rightHeadPtr = right.headPtr; //получение головы списка из правого
+    TElem<LISTTYPE> *rightCurrentPtr = rightHeadPtr; //текущий элемент из этого же списка
 
+    TElem<LISTTYPE> *tmp = headPtr, *prevTmp = NULL; //курсоры в левом списке
+    if (rightHeadPtr)
+    {
+        while (rightCurrentPtr && tmp) // пока оба списка есть копируем из правого в левый
+        {
+            tmp->inf = rightCurrentPtr->inf;
+            prevTmp = (tmp) ? tmp : NULL;
+            tmp = (tmp->next == headPtr) ? NULL : tmp->next;
+            rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
+        }
+
+        while (tmp && !rightCurrentPtr) //если есть только левый 
+        {
+            currentPtr = tmp;
+            tmp = prevTmp ? prevTmp : tailPtr;
+            deleteCurrentElement(prevTmp);
+            if (tmp)
+                tmp = (tmp->next == headPtr) ? NULL : tmp->next;
+            else
+            {
+                tmp = NULL;
+            }
+        }
+
+        while (!tmp && rightCurrentPtr) //если есть только правый
+        {
+            addToEnd(rightCurrentPtr->inf);
+            rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
+        }
+    }
+    else
+    {
+        deleteAllElems();
+    }
+
+    findTail();
+
+    return *this;
+
+
+    /*
     if (this == &right) //проверка на самоприсваивание 
     {
         return *this;
     }
 
-    TElem<LISTTYPE> *rightHead = right.getHeadPtr();
+    TElem<LISTTYPE> *rightHead = right.headptr;
     TElem<LISTTYPE> *rightCurrent = rightHead;
 
     TElem<LISTTYPE> *tmp = headPtr, *prevTmp = NULL; // курсоры в левом списке
@@ -127,7 +187,7 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (List<LISTTYPE>& right)
         if (rightCurrent)
             rightCurrent = (rightCurrent->next == NULL) ? NULL : rightCurrent->next;
     }
-    return *this;
+    return *this;*/
 }
 
 template<typename LISTTYPE>
@@ -409,17 +469,17 @@ void List<LISTTYPE>::sort()
 template <typename LISTTYPE>
 void List<LISTTYPE>::findTail()
 {
-    if (!headPtr)
-    {
-        return;
-    }
+    tailPtr = NULL;
 
-    TElem<LISTTYPE> *tmp = headPtr;
-    while (tmp->next)
+    if (headPtr)
     {
-        tmp = tmp->next;
+        TElem<LISTTYPE> *tmp = headPtr;
+        while (tmp->next)
+        {
+            tmp = tmp->next;
+        }
+        tailPtr = tmp;
     }
-    tailPtr = tmp;
 }
 
 template<typename LISTTYPE>
@@ -530,7 +590,6 @@ void List<LISTTYPE>::show()
         if (headPtr)
         {
             TElem<LISTTYPE> *tmp = headPtr;
-            //currentPtr = headPtr;
             while (tmp)
             {
                 std::cout << tmp->inf << "\t";

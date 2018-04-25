@@ -11,19 +11,19 @@ class List
 
 private:
     template <typename LISTTYPE>
-    struct TElem //структура самого элемента списка
+    struct TElem 
     {
         LISTTYPE		inf;
         TElem<LISTTYPE> *next;
     };
 
     TElem<LISTTYPE>		*headPtr,
-        *tailPtr,
-        *currentPtr;	// переменная указатель на голову списка
-                        //currentPtr - это указатель на текущий элемент, пока класс существует - существует список и этот элемент
+                        *tailPtr,
+                        *currentPtr;	
 
-    TElem<LISTTYPE>*	getHeadPtr(); // Убрать
     void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
+    LISTTYPE&			getCurrInfPtr();
+    void                findTail();
 
 public:
                         List();
@@ -33,45 +33,37 @@ public:
     bool				operator!() const;
     List<LISTTYPE>&		operator++();
     const List<LISTTYPE>& operator= (const List<LISTTYPE>& right);
-
-
-
-    LISTTYPE&			getCurrInfPtr();
+    
     LISTTYPE			getCurrElem();
     void				setCurrToHead();
-
 
     TElem<LISTTYPE>*	findElem(LISTTYPE value);
 
     void				addToBegin(const LISTTYPE& value);
-
     void				addToEnd(const LISTTYPE& value);
-
     void				addSorted(const LISTTYPE& value);
-    void				sortCurrElem();
 
-    bool				deleteElem(const LISTTYPE& value);
+    void				deleteElem(const LISTTYPE& value);
     void				deleteAllElems();
 
     void				sort();
-    void                findTail();
-    bool				bubleSort();
+    void				sortCurrElem();
 
-    void                show();
+    bool				bubleCheck();
+
+    void                show();//убрать
 
 private:
-    void				mergeSort(TElem<LISTTYPE> **root);
+    void				mergeSort(TElem<LISTTYPE> *&root);
     static TElem<LISTTYPE>* mergeList(TElem<LISTTYPE> *list1, TElem<LISTTYPE> *list2);
-    void				findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> **list1, TElem<LISTTYPE> **list2);
+    void				findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TElem<LISTTYPE> *&list2);
 };
 
 
 template <typename LISTTYPE>
 List<LISTTYPE>::List()
 {
-    headPtr = NULL;
-    tailPtr = NULL;
-    currentPtr = NULL;
+    headPtr = tailPtr = currentPtr = NULL;
 }
 
 template <typename LISTTYPE>
@@ -105,10 +97,11 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         return *this;
     }
     
-    TElem<LISTTYPE> *rightHeadPtr = right.headPtr; //получение головы списка из правого
-    TElem<LISTTYPE> *rightCurrentPtr = rightHeadPtr; //текущий элемент из этого же списка
+    TElem<LISTTYPE> *rightHeadPtr = right.headPtr; 
+    TElem<LISTTYPE> *rightCurrentPtr = rightHeadPtr; 
 
     TElem<LISTTYPE> *tmp = headPtr, *prevTmp = NULL; //курсоры в левом списке
+
     if (rightHeadPtr)
     {
         while (rightCurrentPtr && tmp) // пока оба списка есть копируем из правого в левый
@@ -146,48 +139,6 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
     findTail();
 
     return *this;
-
-
-    /*
-    if (this == &right) //проверка на самоприсваивание 
-    {
-        return *this;
-    }
-
-    TElem<LISTTYPE> *rightHead = right.headptr;
-    TElem<LISTTYPE> *rightCurrent = rightHead;
-
-    TElem<LISTTYPE> *tmp = headPtr, *prevTmp = NULL; // курсоры в левом списке
-
-    //TODO: сделать несколько циклов вместо кучи IF
-
-    while (tmp || rightCurrent)
-    {
-        if (rightCurrent && tmp)
-        {
-            tmp->inf = rightCurrent->inf;
-        }
-        else if (tmp && !rightCurrent)
-        {
-            currentPtr = tmp;
-            tmp = prevTmp;
-            deleteCurrentElement(prevTmp);
-        }
-        else if (!tmp && rightCurrent)
-        {
-            addToEnd(rightCurrent->inf);
-        }
-
-        if (prevTmp != tmp)
-            prevTmp = (tmp) ? tmp : NULL;
-
-        if (tmp)
-            tmp = (tmp->next == NULL) ? NULL : tmp->next;
-
-        if (rightCurrent)
-            rightCurrent = (rightCurrent->next == NULL) ? NULL : rightCurrent->next;
-    }
-    return *this;*/
 }
 
 template<typename LISTTYPE>
@@ -195,12 +146,6 @@ List<LISTTYPE>& List<LISTTYPE>::operator++()
 {
     currentPtr = (currentPtr) ? currentPtr->next : ((headPtr) ? headPtr : NULL);
     return *this;
-}
-
-template<typename LISTTYPE>
-typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::getHeadPtr()
-{
-    return (headPtr) ? headPtr : NULL;
 }
 
 template <typename LISTTYPE>
@@ -228,30 +173,35 @@ LISTTYPE List<LISTTYPE>::getCurrElem()
 template<typename LISTTYPE>
 void List<LISTTYPE>::deleteCurrentElement(TElem<LISTTYPE> *prevTmp)
 {
-    TElem<LISTTYPE> *tmp;
     if (headPtr)
     {
+        TElem<LISTTYPE> *tmp;
         if (currentPtr == headPtr)
         {
             tmp = headPtr;
 
-            if (headPtr->next == NULL)
-            {
-                headPtr = NULL;
-            }
-            else
+            if (headPtr->next != NULL)
             {
                 currentPtr = headPtr->next;
                 headPtr = currentPtr;
-                tailPtr->next = NULL;
             }
+            else
+            {
+                headPtr = tailPtr = currentPtr = NULL;
+            }
+        }
+        else if (currentPtr == tailPtr)
+        {
+            tmp = currentPtr;
+            currentPtr = prevTmp;
+            tailPtr = prevTmp;
+            tailPtr->next = NULL;
         }
         else
         {
             tmp = currentPtr;
             currentPtr = currentPtr->next;
             prevTmp->next = currentPtr;
-
         }
 
         delete tmp;
@@ -261,10 +211,7 @@ void List<LISTTYPE>::deleteCurrentElement(TElem<LISTTYPE> *prevTmp)
 template <typename LISTTYPE>
 void List<LISTTYPE>::setCurrToHead()
 {
-    if (headPtr)
-    {
-        currentPtr = headPtr;
-    }
+        currentPtr = headPtr ? headPtr : NULL;
 }
 
 template<typename LISTTYPE>
@@ -303,14 +250,16 @@ void List<LISTTYPE>::addToEnd(const LISTTYPE& value)
     tmp->inf = value;	// записываем значение 
     tmp->next = NULL;
 
-    if (headPtr)
+    headPtr ? (tailPtr->next = tmp) : (headPtr = tmp);
+
+    /*if (headPtr)
     {
         tailPtr->next = tmp;
     }
     else
     {
         headPtr = tmp;
-    }
+    }*/
     tailPtr = tmp;
 }
 
@@ -332,8 +281,8 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
             }
             currentPtr = currentPtr->next;
         }
-        TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>; // выделяем память на новый элемент
-        tmp->inf = value;	// записываем значение 
+        TElem<LISTTYPE> *tmp = new TElem<LISTTYPE>;
+        tmp->inf = value; 
         tmp->next = currentPtr->next;
         currentPtr->next = tmp;
     }
@@ -372,7 +321,6 @@ void List<LISTTYPE>::sortCurrElem()
             }
         }
 
-
         // Если следующий элемент после сортируемого меньше сортируемого - идем сразу в ту половину списка а иначе идем с начала
         tmp = currentPtr->next ? ((currentPtr->inf > currentPtr->next->inf) ? currentPtr->next : headPtr) : headPtr;
 
@@ -406,10 +354,9 @@ void List<LISTTYPE>::sortCurrElem()
 }
 
 template<typename LISTTYPE>
-bool List<LISTTYPE>::deleteElem(const LISTTYPE& value)
+void List<LISTTYPE>::deleteElem(const LISTTYPE& value)
 {
     TElem<LISTTYPE>* tmpPtr = NULL;
-    bool findFlag = false;
 
     currentPtr = headPtr;
 
@@ -417,8 +364,6 @@ bool List<LISTTYPE>::deleteElem(const LISTTYPE& value)
     {
         tmpPtr = headPtr;
         headPtr = headPtr->next;
-        delete tmpPtr;
-        findFlag = true;
     }
     else
     {
@@ -426,23 +371,19 @@ bool List<LISTTYPE>::deleteElem(const LISTTYPE& value)
         {
             if (currentPtr->next->inf == value)
             {
-                findFlag = true;
+                tmpPtr = currentPtr->next;
+                currentPtr->next = tmpPtr->next;
                 break;
             }
-            else
-            {
-                currentPtr = currentPtr->next;
-            }
-        }
-        if (findFlag)
-        {
-            tmpPtr = currentPtr->next;
-            currentPtr->next = tmpPtr->next;
-            delete tmpPtr;
+
+            currentPtr = currentPtr->next;
         }
     }
 
-    return findFlag;
+    if (tmpPtr)
+    {
+        delete tmpPtr;
+    }
 }
 
 template<typename LISTTYPE>
@@ -456,13 +397,13 @@ void List<LISTTYPE>::deleteAllElems()
         headPtr = headPtr->next;
         delete currentPtr;
     }
-    currentPtr = tailPtr = NULL;
+    headPtr = currentPtr = tailPtr = NULL;
 }
 
 template <typename LISTTYPE>
 void List<LISTTYPE>::sort()
 {
-    mergeSort(&headPtr);
+    mergeSort(headPtr);
     findTail();
 }
 
@@ -483,7 +424,7 @@ void List<LISTTYPE>::findTail()
 }
 
 template<typename LISTTYPE>
-bool List<LISTTYPE>::bubleSort() {
+bool List<LISTTYPE>::bubleCheck() {
     TElem<LISTTYPE> *tmp = NULL, *prev = NULL;
     currentPtr = headPtr;
     bool flag = false, isChanged = false;
@@ -505,23 +446,23 @@ bool List<LISTTYPE>::bubleSort() {
     return true;
 }
 
-template <typename LISTTYPE>
-void List<LISTTYPE>::mergeSort(TElem<LISTTYPE> **root)
+template<typename LISTTYPE>
+void List<LISTTYPE>::mergeSort(TElem<LISTTYPE> *&root)
 {
     TElem<LISTTYPE> *list1, *list2;
-    TElem<LISTTYPE> *headPtr1 = *root;
+    TElem<LISTTYPE> *headPtr1 = root;
 
     if ((headPtr1 == NULL) || (headPtr1->next == NULL))
     {
         return;
     }
 
-    findMid(headPtr1, &list1, &list2);
+    findMid(headPtr1, list1, list2);
 
-    mergeSort(&list1);
-    mergeSort(&list2);
+    mergeSort(list1);
+    mergeSort(list2);
 
-    *root = mergeList(list1, list2);
+    root = mergeList(list1, list2);
 }
 
 template<typename LISTTYPE>
@@ -541,7 +482,7 @@ typename List<LISTTYPE>::TElem<LISTTYPE>* List<LISTTYPE>::mergeList(TElem<LISTTY
 }
 
 template<typename LISTTYPE>
-void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> **list1, TElem<LISTTYPE> **list2)
+void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TElem<LISTTYPE> *&list2)
 {
     /**
     * Возвращает указатель на элемент структуры TElem<LISTTYPE> рядом с серединой списка
@@ -552,8 +493,8 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> **list1, TEl
     //в случае пустого списка (или один элемент)
     if ((root == NULL) || (root->next == NULL))
     {
-        *list1 = root;
-        *list2 = NULL;
+        list1 = root;
+        list2 = NULL;
         return;
     }
     else
@@ -574,8 +515,8 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> **list1, TEl
             }
         }
 
-        *list1 = root;
-        *list2 = slow->next;
+        list1 = root;
+        list2 = slow->next;
         slow->next = NULL;
     }
 

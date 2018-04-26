@@ -40,7 +40,7 @@ private:
                         *currentPtr;	
 
     void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
-    LISTTYPE&			getCurrInfPtr(); // public
+    
     void                findTail();
 
 public:
@@ -53,6 +53,7 @@ public:
     const List<LISTTYPE>& operator= (const List<LISTTYPE>& right);
     
     LISTTYPE			getCurrElem();
+    LISTTYPE&			getCurrInfPtr(); 
     void				setCurrToHead();
 
     TElem<LISTTYPE>*	findElem(LISTTYPE value);
@@ -123,7 +124,7 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         while (rightCurrentPtr && tmp) // пока оба списка есть копируем из правого в левый
         {
             tmp->inf = rightCurrentPtr->inf;
-            prevTmp = (tmp) ? tmp : NULL;//
+            prevTmp = tmp;
             tmp = (tmp->next == headPtr) ? NULL : tmp->next;
             rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
         }

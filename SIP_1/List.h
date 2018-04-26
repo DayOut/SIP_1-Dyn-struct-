@@ -1,6 +1,24 @@
 #pragma once
-#define SHOW_FLAG true
+#include <iostream>
+#include "ListIterator.h"
 
+
+/*
+    
+    operator=
+        убрать кучу проверок в первом while
+        удалять остаток левого списка не поэлементно а сразу все
+        убрать deleteCurrElem
+
+    getCurrInfPtr()
+        сделать паблик
+
+    sortCurr
+        соединить два цикла в один, использовать проход первого для поиска нужного места для вставки
+
+
+
+*/
 template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
@@ -22,7 +40,7 @@ private:
                         *currentPtr;	
 
     void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
-    LISTTYPE&			getCurrInfPtr();
+    LISTTYPE&			getCurrInfPtr(); // public
     void                findTail();
 
 public:
@@ -50,8 +68,6 @@ public:
     void				sortCurrElem();
 
     bool				bubleCheck();
-
-    void                show();//убрать
 
 private:
     void				mergeSort(TElem<LISTTYPE> *&root);
@@ -107,12 +123,12 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         while (rightCurrentPtr && tmp) // пока оба списка есть копируем из правого в левый
         {
             tmp->inf = rightCurrentPtr->inf;
-            prevTmp = (tmp) ? tmp : NULL;
+            prevTmp = (tmp) ? tmp : NULL;//
             tmp = (tmp->next == headPtr) ? NULL : tmp->next;
             rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
         }
 
-        while (tmp && !rightCurrentPtr) //если есть только левый 
+        while (tmp) //если есть только левый 
         {
             currentPtr = tmp;
             tmp = prevTmp ? prevTmp : tailPtr;
@@ -125,10 +141,9 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
             }
         }
 
-        while (!tmp && rightCurrentPtr) //если есть только правый
+        while (!tmp) //если есть только правый
         {
             addToEnd(rightCurrentPtr->inf);
-            rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
         }
     }
     else
@@ -291,12 +306,8 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 template<typename LISTTYPE>
 void List<LISTTYPE>::sortCurrElem()
 {   
-    if (headPtr && tailPtr) {
-        if (!currentPtr)
-        {
-            currentPtr = headPtr;
-        }
-
+    if (headPtr && currentPtr) 
+    {
         TElem<LISTTYPE> *tmp = headPtr;
         if (currentPtr == headPtr) //если текущий голова
         {
@@ -521,28 +532,6 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TEl
     }
 
     
-}
-
-template<typename LISTTYPE>
-void List<LISTTYPE>::show()
-{
-    if (SHOW_FLAG)
-    {
-        if (headPtr)
-        {
-            TElem<LISTTYPE> *tmp = headPtr;
-            while (tmp)
-            {
-                std::cout << tmp->inf << "\t";
-                tmp = tmp->next; // доходим до конца списка
-            }
-            std::cout << std::endl;
-        }
-        else
-        {
-            std::wcout << L"Список пуст!\n";
-        }
-    }
 }
 
 

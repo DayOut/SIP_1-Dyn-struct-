@@ -1,34 +1,33 @@
 #pragma once
 
-#include "List.h"
-
 template <typename LISTTYPE>
 class ListIterator
 {
-    const List &list;
 public:
-    ListIterator(const List<LISTTYPE>&);
-    ListIterator(const ListIterator<LISTTYPE>&);
+    ListIterator(List<LISTTYPE>&);
+    ListIterator(ListIterator<LISTTYPE>&);
 
     void                        setIteratorToHead();
 
     ListIterator<LISTTYPE>&		operator++();
     ListIterator<LISTTYPE>&		operator=(ListIterator<LISTTYPE>& right);
     bool						operator!();
+    LISTTYPE                    operator*();
 
 
 private:
-    typename List<LISTTYPE>::TElem<LISTTYPE>* listPtr, *listHeadPtr;
+    typename List<LISTTYPE>::TElem<LISTTYPE> *listPtr, *listHeadPtr;
 };
 
 template<typename LISTTYPE>
-ListIterator<LISTTYPE>::ListIterator(const List<LISTTYPE>& list)
+ListIterator<LISTTYPE>::ListIterator(List<LISTTYPE>& list)
 {
-    listPtr = list.headPtr;
+    listPtr = listHeadPtr = list.headPtr;
+
 }
 
 template<typename LISTTYPE>
-ListIterator<LISTTYPE>::ListIterator(const ListIterator<LISTTYPE>& iterator)
+ListIterator<LISTTYPE>::ListIterator(ListIterator<LISTTYPE>& iterator)
 {
     listPtr = iterator;
 }
@@ -62,4 +61,10 @@ template <typename LISTTYPE>
 bool ListIterator<LISTTYPE>::operator!()
 {
     return (listPtr->next ? true : false);
+}
+
+template <typename LISTTYPE>
+LISTTYPE ListIterator<LISTTYPE>::operator*()
+{
+    return (listPtr) ? listPtr->inf : NULL;
 }

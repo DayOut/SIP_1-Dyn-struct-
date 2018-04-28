@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "ListIterator.h"
+//#include "ListIterator.h"
 
 
 /*
@@ -19,13 +19,13 @@
 
 
 */
-template <typename LISTTYPE> class ListIterator;
+//template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
 class List
 {
 
-    friend ListIterator<LISTTYPE>;
+    //friend ListIterator<LISTTYPE>;
 
 private:
     template <typename LISTTYPE>
@@ -44,6 +44,7 @@ private:
     void                findTail();
 
 public:
+    void show();
                         List();
                         List(const List<LISTTYPE>& right);
                         ~List();
@@ -124,27 +125,29 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         while (rightCurrentPtr && tmp) // пока оба списка есть копируем из правого в левый
         {
             tmp->inf = rightCurrentPtr->inf;
-            prevTmp = tmp;
-            tmp = (tmp->next == headPtr) ? NULL : tmp->next;
-            rightCurrentPtr = (rightCurrentPtr->next == rightHeadPtr) ? NULL : rightCurrentPtr->next;
+            tailPtr = tmp;
+            tmp = tmp->next;
+            rightCurrentPtr = rightCurrentPtr->next;
         }
 
-        while (tmp) //если есть только левый 
+        if(tailPtr)
+            tailPtr->next = NULL;
+
+        if (tmp) // если только левый
         {
-            currentPtr = tmp;
-            tmp = prevTmp ? prevTmp : tailPtr;
-            deleteCurrentElement(prevTmp);
-            if (tmp)
-                tmp = (tmp->next == headPtr) ? NULL : tmp->next;
-            else
+            TElem<LISTTYPE> *del;
+            while (tmp)
             {
-                tmp = NULL;
+                del = tmp;
+                tmp = tmp->next;
+                delete del;
             }
         }
 
-        while (!tmp) //если есть только правый
+        while (rightCurrentPtr) //если есть только правый
         {
             addToEnd(rightCurrentPtr->inf);
+            rightCurrentPtr = rightCurrentPtr->next;
         }
     }
     else
@@ -152,7 +155,7 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         deleteAllElems();
     }
 
-    findTail();
+    //findTail();
 
     return *this;
 }
@@ -536,3 +539,14 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TEl
 }
 
 
+template<typename LISTTYPE>
+void List<LISTTYPE>::show()
+{
+    TElem<LISTTYPE> *tmp = headPtr;
+    while (tmp)
+    {
+        std::cout << tmp->inf << "\t";
+        tmp = tmp->next;    
+    }
+    std::cout << std::endl;
+}

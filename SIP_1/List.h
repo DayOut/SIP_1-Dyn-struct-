@@ -1,7 +1,16 @@
 #pragma once
 #include <iostream>
-//#include "ListIterator.h"
+/*
+#ifdef UNICODE
+#define outstream std::wostream
+#define out std::wcout
 
+#else
+#define outstream std::ostream
+#define out std::cout
+
+#endif // UNICODE
+*/
 
 /*
     
@@ -19,13 +28,13 @@
 
 
 */
-//template <typename LISTTYPE> class ListIterator;
+template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
 class List
 {
 
-    //friend ListIterator<LISTTYPE>;
+    friend ListIterator<LISTTYPE>;
 
 private:
     template <typename LISTTYPE>
@@ -38,10 +47,6 @@ private:
     TElem<LISTTYPE>		*headPtr,
                         *tailPtr,
                         *currentPtr;	
-
-    void                deleteCurrentElement(TElem<LISTTYPE> *prevTmp);
-    
-    void                findTail();
 
 public:
     void show();
@@ -70,6 +75,8 @@ public:
     void				sortCurrElem();
 
     bool				bubleCheck();
+
+    template <typename LISTTYPE> friend std::ostream& operator << (std::ostream& output, List<LISTTYPE>& list);
 
 private:
     void				mergeSort(TElem<LISTTYPE> *&root);
@@ -130,8 +137,10 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
             rightCurrentPtr = rightCurrentPtr->next;
         }
 
-        if(tailPtr)
+        if (tailPtr)
+        {
             tailPtr->next = NULL;
+        }
 
         if (tmp) // если только левый
         {
@@ -185,44 +194,6 @@ LISTTYPE List<LISTTYPE>::getCurrElem()
         return currentPtr ? currentPtr->inf : (currentPtr = headPtr)->inf;
     }
     return false;
-}
-
-template<typename LISTTYPE>
-void List<LISTTYPE>::deleteCurrentElement(TElem<LISTTYPE> *prevTmp)
-{
-    if (headPtr)
-    {
-        TElem<LISTTYPE> *tmp;
-        if (currentPtr == headPtr)
-        {
-            tmp = headPtr;
-
-            if (headPtr->next != NULL)
-            {
-                currentPtr = headPtr->next;
-                headPtr = currentPtr;
-            }
-            else
-            {
-                headPtr = tailPtr = currentPtr = NULL;
-            }
-        }
-        else if (currentPtr == tailPtr)
-        {
-            tmp = currentPtr;
-            currentPtr = prevTmp;
-            tailPtr = prevTmp;
-            tailPtr->next = NULL;
-        }
-        else
-        {
-            tmp = currentPtr;
-            currentPtr = currentPtr->next;
-            prevTmp->next = currentPtr;
-        }
-
-        delete tmp;
-    }
 }
 
 template <typename LISTTYPE>
@@ -413,17 +384,10 @@ void List<LISTTYPE>::deleteAllElems()
 template <typename LISTTYPE>
 void List<LISTTYPE>::sort()
 {
-    mergeSort(headPtr);
-    findTail();
-}
-
-template <typename LISTTYPE>
-void List<LISTTYPE>::findTail()
-{
-    tailPtr = NULL;
-
     if (headPtr)
     {
+        mergeSort(headPtr);
+
         TElem<LISTTYPE> *tmp = headPtr;
         while (tmp->next)
         {
@@ -432,6 +396,7 @@ void List<LISTTYPE>::findTail()
         tailPtr = tmp;
     }
 }
+
 
 template<typename LISTTYPE>
 bool List<LISTTYPE>::bubleCheck() {
@@ -533,6 +498,28 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TEl
     
 }
 
+/*template <typename LISTTYPE>
+outstream& operator << (outstream& output, const List<LISTTYPE>& list)
+{
+
+    for (ListIterator<LISTTYPE> iter = list; !iter; ++iter)
+    {
+        output << *iter << __T("");
+    }
+    return output;
+}*/
+
+template <typename LISTTYPE>
+std::ostream& operator << (std::ostream& output,  List<LISTTYPE>& list)
+{
+
+    for (ListIterator<LISTTYPE> iter = list; !iter; ++iter)
+    {
+        output << *iter << __T(" ");
+    }
+    return output;
+}
+
 
 template<typename LISTTYPE>
 void List<LISTTYPE>::show()
@@ -544,4 +531,107 @@ void List<LISTTYPE>::show()
         tmp = tmp->next;    
     }
     std::cout << std::endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template <typename LISTTYPE>
+class ListIterator
+{
+public:
+    ListIterator(List<LISTTYPE>&);
+    ListIterator(ListIterator<LISTTYPE>&);
+
+    void                        setIteratorToHead();
+
+    ListIterator<LISTTYPE>&		operator++();
+    ListIterator<LISTTYPE>&		operator=(ListIterator<LISTTYPE>& right);
+    ListIterator<LISTTYPE>&		operator=(const List<LISTTYPE>& right);
+    bool						operator!();
+    LISTTYPE                    operator*();
+    LISTTYPE    getElem();
+
+
+private:
+    typename List<LISTTYPE>::TElem<LISTTYPE> *listPtr, *listHeadPtr;
+};
+
+template<typename LISTTYPE>
+ListIterator<LISTTYPE>::ListIterator(List<LISTTYPE>& list)
+{
+    listPtr = listHeadPtr = list.headPtr;
+
+}
+
+template<typename LISTTYPE>
+ListIterator<LISTTYPE>::ListIterator(ListIterator<LISTTYPE>& iterator)
+{
+    listPtr = iterator;
+}
+
+
+template<typename LISTTYPE>
+void ListIterator<LISTTYPE>::setIteratorToHead()
+{
+    listPtr = listHeadPtr;
+}
+
+
+
+template <typename LISTTYPE>
+ListIterator<LISTTYPE>& ListIterator<LISTTYPE>::operator++()
+{
+    if (listPtr != 0)
+    {
+        listPtr = listPtr->next;
+    }
+    return *this;
+}
+
+template <typename LISTTYPE>
+ListIterator<LISTTYPE>&	ListIterator<LISTTYPE>::operator=(ListIterator<LISTTYPE>& right)
+{
+    if (this != &right)
+    {
+        listPtr = right;
+    }
+    return *this;
+}
+
+template <typename LISTTYPE>
+ListIterator<LISTTYPE>&	ListIterator<LISTTYPE>::operator= (const List<LISTTYPE>& list)
+{
+    if (this != &list)
+    {
+        listPtr = list.headPtr;
+    }
+    return *this;
+}
+
+template <typename LISTTYPE>
+bool ListIterator<LISTTYPE>::operator!()
+{
+    return (listPtr ? true : false);
+}
+
+template <typename LISTTYPE>
+LISTTYPE ListIterator<LISTTYPE>::operator*()
+{
+    return (listPtr) ? listPtr->inf : NULL;
 }

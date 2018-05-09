@@ -1,16 +1,18 @@
 #pragma once
 #include <iostream>
-/*
+
 #ifdef UNICODE
+
 #define outstream std::wostream
 #define out std::wcout
 
 #else
+
 #define outstream std::ostream
 #define out std::cout
 
 #endif // UNICODE
-*/
+
 
 /*
     
@@ -76,7 +78,7 @@ public:
 
     bool				bubleCheck();
 
-    template <typename LISTTYPE> friend std::ostream& operator << (std::ostream& output, List<LISTTYPE>& list);
+    template <typename LISTTYPE> friend outstream& operator << (outstream& output, List<LISTTYPE>& list);
 
 private:
     void				mergeSort(TElem<LISTTYPE> *&root);
@@ -184,6 +186,7 @@ LISTTYPE& List<LISTTYPE>::getCurrInfPtr()
             return currentPtr->inf;
         }
     }
+    return currentPtr->inf;
 }
 
 template<typename LISTTYPE>
@@ -498,19 +501,8 @@ void List<LISTTYPE>::findMid(TElem<LISTTYPE> *root, TElem<LISTTYPE> *&list1, TEl
     
 }
 
-/*template <typename LISTTYPE>
-outstream& operator << (outstream& output, const List<LISTTYPE>& list)
-{
-
-    for (ListIterator<LISTTYPE> iter = list; !iter; ++iter)
-    {
-        output << *iter << __T("");
-    }
-    return output;
-}*/
-
 template <typename LISTTYPE>
-std::ostream& operator << (std::ostream& output,  List<LISTTYPE>& list)
+outstream& operator << (outstream& output, List<LISTTYPE>& list)
 {
 
     for (ListIterator<LISTTYPE> iter = list; !iter; ++iter)
@@ -534,22 +526,7 @@ void List<LISTTYPE>::show()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//------Iterator-----------------------------------------------------------------------------------------
 
 template <typename LISTTYPE>
 class ListIterator
@@ -565,7 +542,6 @@ public:
     ListIterator<LISTTYPE>&		operator=(const List<LISTTYPE>& right);
     bool						operator!();
     LISTTYPE                    operator*();
-    LISTTYPE    getElem();
 
 
 private:

@@ -535,8 +535,6 @@ public:
     ListIterator(List<LISTTYPE>&);
     ListIterator(ListIterator<LISTTYPE>&);
 
-    void                        setIteratorToHead();
-
     ListIterator<LISTTYPE>&		operator++();
     ListIterator<LISTTYPE>&		operator=(ListIterator<LISTTYPE>& right);
     ListIterator<LISTTYPE>&		operator=(const List<LISTTYPE>& right);
@@ -545,13 +543,13 @@ public:
 
 
 private:
-    typename List<LISTTYPE>::TElem<LISTTYPE> *listPtr, *listHeadPtr;
+    typename List<LISTTYPE>::TElem<LISTTYPE> *listPtr;
 };
 
 template<typename LISTTYPE>
 ListIterator<LISTTYPE>::ListIterator(List<LISTTYPE>& list)
 {
-    listPtr = listHeadPtr = list.headPtr;
+    listPtr  = list.headPtr;
 
 }
 
@@ -560,15 +558,6 @@ ListIterator<LISTTYPE>::ListIterator(ListIterator<LISTTYPE>& iterator)
 {
     listPtr = iterator;
 }
-
-
-template<typename LISTTYPE>
-void ListIterator<LISTTYPE>::setIteratorToHead()
-{
-    listPtr = listHeadPtr;
-}
-
-
 
 template <typename LISTTYPE>
 ListIterator<LISTTYPE>& ListIterator<LISTTYPE>::operator++()

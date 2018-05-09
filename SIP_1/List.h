@@ -155,8 +155,6 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
         deleteAllElems();
     }
 
-    //findTail();
-
     return *this;
 }
 
@@ -310,61 +308,58 @@ void List<LISTTYPE>::addSorted(const LISTTYPE& value)
 template<typename LISTTYPE>
 void List<LISTTYPE>::sortCurrElem()
 {   
-    if (headPtr && currentPtr) 
+    // curr - текущий элемент (сортируемый)
+    if (headPtr)
     {
-        TElem<LISTTYPE> *tmp = headPtr;
-        if (currentPtr == headPtr) //если текущий голова
+        TElem <LISTTYPE> *pos = NULL; // элемент после которого надо вставлять current
+        TElem <LISTTYPE> *tmp = new TElem<LISTTYPE>;
+        tmp->next = headPtr;
+        TElem <LISTTYPE> *prev = tmp; // элемент перед current
+
+        while (prev->next != currentPtr) // пока не найдем предыдущий перед текущим (elem)
         {
-            headPtr = headPtr->next; //вырезаем элемент
-        }
-        else
-        {
-            //находим элемент перед текущим и вырезаем текущий
-            while (tmp->next != currentPtr)
+            if (!pos && prev->next->inf > currentPtr->inf) // Если нашли место для вставки
             {
-                tmp = tmp->next;
+                pos = prev;
             }
 
-            if (tmp->next != tailPtr) // если не хвост
-            {
-                tmp->next = currentPtr->next;
-            }
-            else // если хвост
-            {
-                tailPtr = tmp;
-                tailPtr->next = NULL;
-            }
+            prev = prev->next;
         }
 
-        // Если следующий элемент после сортируемого меньше сортируемого - идем сразу в ту половину списка а иначе идем с начала
-        tmp = currentPtr->next ? ((currentPtr->inf > currentPtr->next->inf) ? currentPtr->next : headPtr) : headPtr;
+        prev->next = currentPtr->next; // вырезаем элемент
 
-        // Или же лучше сделать так
-        // tmp = headPtr;
-
-        if (currentPtr->inf <= headPtr->inf)
+        if (currentPtr == headPtr) 
         {
-            currentPtr->next = headPtr;
-            headPtr = currentPtr;
+            headPtr = prev->next;
+        }
+        else if (currentPtr == tailPtr)
+        {
+            tailPtr = prev;
         }
 
-        while (currentPtr->inf > tmp->inf)
+        if (!pos || pos == currentPtr) // если таки не была найдена новая позиция для elem
         {
-            if (tmp->next && currentPtr->inf <= tmp->next->inf) //нашли нужное место
+            pos = tmp;
+
+            while (pos->next->inf < currentPtr->inf) 
             {
-                currentPtr->next = tmp->next; //вставляем
-                tmp->next = currentPtr;
-                break;
+                pos = pos->next; 
+                if (!pos->next) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
+                {
+                    break;
+                }
             }
-            else if (tmp == tailPtr) //если дошли до конца списка
-            {
-                currentPtr->next = NULL;
-                tailPtr->next = currentPtr;
-                tailPtr = currentPtr;
-                break;
-            }
-            tmp = tmp->next;
         }
+
+        //втсавляем
+        currentPtr->next = pos->next;
+        pos->next = currentPtr;
+
+        if (pos == tailPtr || currentPtr->next == headPtr) // если целевая позиция - после хвоста
+        {
+            (currentPtr->next == headPtr) ? headPtr = currentPtr : tailPtr = currentPtr;
+        }
+        delete tmp;
     }
 }
 

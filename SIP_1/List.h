@@ -277,23 +277,24 @@ void List<LISTTYPE>::sortCurrElem()
         TElem <LISTTYPE> *pos = NULL; // элемент после которого надо вставл€ть current
         TElem <LISTTYPE> *tmp = new TElem<LISTTYPE>;
         tmp->next = headPtr;
-        TElem <LISTTYPE> *prev = tmp; // элемент перед current
+        TElem <LISTTYPE> *prev = tmp, cur = tmp->next; // элемент перед current
 
-        while (prev->next != currentPtr) // пока не найдем предыдущий перед текущим (elem)
+        while (cur != currentPtr) // пока не найдем предыдущий перед текущим (elem)
         {
-            if (!pos && prev->next->inf > currentPtr->inf) // ≈сли нашли место дл€ вставки
+            if (!pos && cur->inf > currentPtr->inf) // ≈сли нашли место дл€ вставки
             {
-                pos = prev;
+                pos = cur;
             }
 
-            prev = prev->next;
+            prev = cur;
+            cur = cur->next;
         }
 
         prev->next = currentPtr->next; // вырезаем элемент
 
         if (currentPtr == headPtr) 
         {
-            headPtr = prev->next;
+            headPtr = cur;
         }
         else if (currentPtr == tailPtr)
         {
@@ -302,16 +303,21 @@ void List<LISTTYPE>::sortCurrElem()
 
         if (!pos || pos == currentPtr) // если таки не была найдена нова€ позици€ дл€ elem
         {
-            pos = tmp;
+            prev = tmp;
+            cur = tmp->next;
 
-            while (pos->next->inf < currentPtr->inf) 
+            while (cur->inf < currentPtr->inf)
             {
                 pos = pos->next; 
                 if (!pos->next) // если уже прошли цикл и не нашли (значит надо вставл€ть после хвоста)
                 {
                     break;
                 }
+
+                prev = cur;
+                cur = cur->next;
             }
+            pos
         }
 
         //вставка
@@ -551,7 +557,7 @@ ListIterator<LISTTYPE>&	ListIterator<LISTTYPE>::operator=(ListIterator<LISTTYPE>
 {
     if (this != &right)
     {
-        listPtr = right;
+        listPtr = right.listPtr;
     }
     return *this;
 }
@@ -569,7 +575,7 @@ ListIterator<LISTTYPE>&	ListIterator<LISTTYPE>::operator= (const List<LISTTYPE>&
 template <typename LISTTYPE>
 bool ListIterator<LISTTYPE>::operator!()
 {
-    return (listPtr ? true : false);
+    return listPtr;
 }
 
 template <typename LISTTYPE>

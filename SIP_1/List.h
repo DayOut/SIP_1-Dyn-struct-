@@ -275,60 +275,63 @@ void List<LISTTYPE>::sortCurrElem()
     if (headPtr)
     {
         TElem <LISTTYPE> *pos = NULL; // элемент после которого надо вставлять current
-        TElem <LISTTYPE> *tmp = new TElem<LISTTYPE>;
-        tmp->next = headPtr;
-        TElem <LISTTYPE> *prev = tmp, cur = tmp->next; // элемент перед current
+        TElem <LISTTYPE> *prev = NULL, *cur = headPtr; // элемент перед current и временный курсор
 
         while (cur != currentPtr) // пока не найдем предыдущий перед текущим (elem)
-        {
+        {            
             if (!pos && cur->inf > currentPtr->inf) // Если нашли место для вставки
             {
-                pos = cur;
+                pos = prev;
             }
-
             prev = cur;
             cur = cur->next;
         }
 
-        prev->next = currentPtr->next; // вырезаем элемент
+        prev = prev ? prev : headPtr; // случай когда сортируемый элемент в голове и предыдущий просто отсутствует
 
-        if (currentPtr == headPtr) 
+        //проверяем необходимо ли вообще что-либо переставлять
+        if (prev->inf > currentPtr->inf || currentPtr->inf >= currentPtr->next->inf)
         {
-            headPtr = cur;
-        }
-        else if (currentPtr == tailPtr)
-        {
-            tailPtr = prev;
-        }
-
-        if (!pos || pos == currentPtr) // если таки не была найдена новая позиция для elem
-        {
-            prev = tmp;
-            cur = tmp->next;
-
-            while (cur->inf < currentPtr->inf)
+            //cur = cur->next;
+            if (currentPtr == headPtr) 
             {
-                pos = pos->next; 
-                if (!pos->next) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
-                {
-                    break;
-                }
-
-                prev = cur;
-                cur = cur->next;
+                headPtr = currentPtr->next;
             }
-            pos
-        }
+            else if (currentPtr == tailPtr)
+            {
+                tailPtr = prev;
+            }
 
-        //вставка
-        currentPtr->next = pos->next;
-        pos->next = currentPtr;
+            prev->next = currentPtr->next; // вырезаем элемент
 
-        if (pos == tailPtr || currentPtr->next == headPtr) // если целевая позиция - после хвоста
-        {
-            (currentPtr->next == headPtr) ? headPtr = currentPtr : tailPtr = currentPtr;
+            if (!pos || pos == currentPtr) // если таки не была найдена новая позиция для elem
+            {
+                pos = NULL;
+                cur = headPtr;
+
+                while (cur->inf < currentPtr->inf)
+                {
+                    pos = cur;
+                    cur = cur->next;
+                    if (!cur) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            //вставка
+            currentPtr->next = pos ? pos->next : cur;
+            //проверка на вставку перед текущим местом или после (играет роль только при вставке перед головой)
+            (pos->inf < currentPtr->inf) ? pos->next = currentPtr : currentPtr->next = pos;
+
+            cur = currentPtr->next;
+
+            if (pos == tailPtr || cur == headPtr) // если целевая позиция - после хвоста
+            {
+                (cur == headPtr) ? headPtr = currentPtr : tailPtr = currentPtr;
+            }
         }
-        delete tmp;
     }
 }
 
@@ -515,6 +518,7 @@ template <typename LISTTYPE>
 class ListIterator
 {
 public:
+    ListIterator();
     ListIterator(List<LISTTYPE>&);
     ListIterator(ListIterator<LISTTYPE>&);
 
@@ -528,6 +532,13 @@ public:
 private:
     typename List<LISTTYPE>::TElem<LISTTYPE> *listPtr;
 };
+
+template<typename LISTTYPE>
+ListIterator<LISTTYPE>::ListIterator()
+{
+    listPtr = NULL;
+
+}
 
 template<typename LISTTYPE>
 ListIterator<LISTTYPE>::ListIterator(List<LISTTYPE>& list)

@@ -27,6 +27,7 @@
     sortCurr
         соединить два цикла в один, использовать проход первого для поиска нужного места для вставки
 
+    оператор вывода в поток
 
 
 */
@@ -139,13 +140,9 @@ const List<LISTTYPE>& List<LISTTYPE>::operator= (const List<LISTTYPE>& right)
             rightCurrentPtr = rightCurrentPtr->next;
         }
 
-        if (tailPtr)
-        {
-            tailPtr->next = NULL;
-        }
-
         if (tmp) // если только левый
         {
+            tailPtr->next = NULL;
             TElem<LISTTYPE> *del;
             while (tmp)
             {
@@ -243,14 +240,6 @@ void List<LISTTYPE>::addToEnd(const LISTTYPE& value)
 
     headPtr ? (tailPtr->next = tmp) : (headPtr = tmp);
 
-    /*if (headPtr)
-    {
-        tailPtr->next = tmp;
-    }
-    else
-    {
-        headPtr = tmp;
-    }*/
     tailPtr = tmp;
 }
 
@@ -325,7 +314,7 @@ void List<LISTTYPE>::sortCurrElem()
             }
         }
 
-        //втсавляем
+        //вставка
         currentPtr->next = pos->next;
         pos->next = currentPtr;
 
@@ -513,18 +502,6 @@ outstream& operator << (outstream& output, List<LISTTYPE>& list)
 }
 
 
-template<typename LISTTYPE>
-void List<LISTTYPE>::show()
-{
-    TElem<LISTTYPE> *tmp = headPtr;
-    while (tmp)
-    {
-        std::cout << tmp->inf << "\t";
-        tmp = tmp->next;    
-    }
-    std::cout << std::endl;
-}
-
 
 //------Iterator-----------------------------------------------------------------------------------------
 
@@ -556,7 +533,7 @@ ListIterator<LISTTYPE>::ListIterator(List<LISTTYPE>& list)
 template<typename LISTTYPE>
 ListIterator<LISTTYPE>::ListIterator(ListIterator<LISTTYPE>& iterator)
 {
-    listPtr = iterator;
+    listPtr = iterator.listPtr;
 }
 
 template <typename LISTTYPE>

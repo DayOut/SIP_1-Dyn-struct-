@@ -295,18 +295,17 @@ void List<LISTTYPE>::sortCurrElem()
         if (!findFlag) // если таки не была найдена новая позиция для elem
         {
             cur = cur->next;
-            //cur = headPtr;
-            //pos = cur;
-            while(cur->inf <= currentPtr->inf)
+            while(!cur)
             {
-                pos = cur;
-                cur = cur->next;
-                if (!cur) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
+                if (cur->inf <= currentPtr->inf) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
                 {
                     break;
                 }
+                pos = cur;
+                cur = cur->next;
             }
         }
+
 
         prev = prev ? prev : headPtr; // случай когда сортируемый элемент в голове и предыдущий просто отсутствует
 

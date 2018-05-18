@@ -292,53 +292,67 @@ void List<LISTTYPE>::sortCurrElem()
 
         for (; cur != currentPtr; prev = cur, cur = cur->next);
 
+
         if (!findFlag) // если таки не была найдена новая позиция для elem
         {
             cur = cur->next;
-            while(!cur)
+            while(cur)
             {
-                if (cur->inf <= currentPtr->inf) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
+                if (cur->inf > currentPtr->inf) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
                 {
-                    break;
+                    if (currentPtr == headPtr)
+                    {
+                        headPtr = currentPtr;
+                    }
+                    if(prev)
+                        prev->next = currentPtr->next; // вырезаем элемент            
+                    currentPtr->next = pos ? pos->next : headPtr; //вставка
+                    pos->next = currentPtr;
+
+                    return;
                 }
                 pos = cur;
                 cur = cur->next;
             }
+            /*
+            if (currentPtr == tailPtr)
+            {
+                tailPtr = currentPtr;
+            }
+            if (prev)
+                prev->next = currentPtr->next; // вырезаем элемент            
+            currentPtr->next = pos ? pos->next : headPtr; //вставка
+            pos->next = currentPtr;
+            */
+            return;
         }
 
-
-        prev = prev ? prev : headPtr; // случай когда сортируемый элемент в голове и предыдущий просто отсутствует
-
-        //проверяем необходимо ли вообще что-либо переставлять
-        if (pos != prev)
+        if (currentPtr == tailPtr)
         {
-            //cur = cur->next;
-            if (currentPtr == headPtr) 
-            {
-                headPtr = currentPtr->next;
-            }
-            else if (currentPtr == tailPtr)
-            {
-                tailPtr = prev;
-            }
-
-            // вырезаем элемент
-            prev->next = currentPtr->next; 
-
-            //вставка
-            currentPtr->next = pos ? pos->next : headPtr;
-
-            //проверка на вставку перед текущим местом или после (играет роль только при вставке перед головой)
-            if(pos)
-                pos->next = currentPtr;
-
-            cur = currentPtr->next;
-
-            if (pos == tailPtr || cur == headPtr) // если целевая позиция - после хвоста
-            {
-                (cur == headPtr) ? headPtr = currentPtr : tailPtr = currentPtr;
-            }
+            tailPtr = currentPtr;
         }
+            
+        prev->next = currentPtr->next;// вырезаем элемент
+        currentPtr->next = pos ? pos->next : headPtr;//вставка
+
+        if(pos)
+            pos->next = currentPtr;
+
+        cur = currentPtr->next;
+
+        if (cur == headPtr) 
+        {
+            headPtr = currentPtr;
+        }
+
+        
+        
+
+        
+
+         
+
+       
     }
 }
 

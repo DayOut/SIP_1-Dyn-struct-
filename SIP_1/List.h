@@ -296,19 +296,23 @@ void List<LISTTYPE>::sortCurrElem()
         if (!findFlag) // если таки не была найдена новая позиция для elem
         {
             cur = cur->next;
-            //pos = prev;
+            pos = prev;
+
             while(cur)
             {
                 if (cur->inf > currentPtr->inf) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
                 {
-                    if (pos)
+                    if (pos) // проверка на случай если найденное место совпадает с текущим
                     {
                         if (currentPtr == headPtr)
                         {
                             headPtr = currentPtr->next;
                         }
+
                         if (prev)
-                            prev->next = currentPtr->next; // вырезаем элемент            
+                        {
+                            prev->next = currentPtr->next; // вырезаем элемент  
+                        }
                         currentPtr->next = pos ? pos->next : headPtr; //вставка
                         pos->next = currentPtr;
                     }
@@ -330,45 +334,38 @@ void List<LISTTYPE>::sortCurrElem()
             }
 
             if (prev)
+            {
                 prev->next = currentPtr->next; // вырезаем элемент  
+            }
 
             if (pos)
             {
                 currentPtr->next = pos->next; //вставка
                 pos->next = currentPtr;
+                if (pos == tailPtr)
+                    tailPtr = currentPtr;
             }
             
             return;
         }
-
-
-        if (currentPtr == tailPtr)
-        {
-            tailPtr = currentPtr;
-        }
             
+        if (currentPtr == tailPtr)
+            tailPtr = prev;
+
         prev->next = currentPtr->next;// вырезаем элемент
         currentPtr->next = pos ? pos->next : headPtr;//вставка
 
-        if(pos)
+        if (pos)
+        {
             pos->next = currentPtr;
+            if (pos == tailPtr)
+                tailPtr = currentPtr;
+        }
 
-        if (pos == tailPtr)
-            tailPtr = currentPtr;
-
-        cur = currentPtr->next;
-
-        if (cur == headPtr) 
+        if (currentPtr->next == headPtr)
         {
             headPtr = currentPtr;
         }
-
-        
-        
-
-        
-
-         
 
        
     }
@@ -546,6 +543,7 @@ outstream& operator << (outstream& output, List<LISTTYPE>& list)
     {
         output << *iter << __T(" ");
     }
+    output << "\t head: " << list.headPtr->inf << " tail: " << list.tailPtr->inf;
     return output;
 }
 

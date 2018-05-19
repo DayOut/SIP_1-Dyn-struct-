@@ -304,7 +304,8 @@ void List<LISTTYPE>::sortCurrElem()
                 {
                     if (pos) // проверка на случай если найденное место совпадает с текущим
                     {
-                        if (currentPtr == headPtr)
+                        currentPtr == headPtr ? headPtr = currentPtr->next : prev->next = currentPtr->next;
+                        /*if (currentPtr == headPtr)
                         {
                             headPtr = currentPtr->next;
                         }
@@ -312,7 +313,7 @@ void List<LISTTYPE>::sortCurrElem()
                         if (prev)
                         {
                             prev->next = currentPtr->next; // вырезаем элемент  
-                        }
+                        }*/
                         currentPtr->next = pos ? pos->next : headPtr; //вставка
                         pos->next = currentPtr;
                     }
@@ -328,6 +329,8 @@ void List<LISTTYPE>::sortCurrElem()
                 чтобы не проверять это в цикле, проще вынести сюда, так как в любом случае попадем сюда только в таком исходе
              */
            
+            currentPtr == headPtr ? headPtr = currentPtr->next : prev->next = currentPtr->next;
+            /* //тернарная операция - замена следующего кода:
             if (currentPtr == headPtr)
             {
                 headPtr = currentPtr->next;
@@ -336,7 +339,7 @@ void List<LISTTYPE>::sortCurrElem()
             if (prev)
             {
                 prev->next = currentPtr->next; // вырезаем элемент  
-            }
+            }*/
 
             if (pos)
             {

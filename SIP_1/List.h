@@ -296,36 +296,51 @@ void List<LISTTYPE>::sortCurrElem()
         if (!findFlag) // если таки не была найдена новая позиция для elem
         {
             cur = cur->next;
+            //pos = prev;
             while(cur)
             {
                 if (cur->inf > currentPtr->inf) // если уже прошли цикл и не нашли (значит надо вставлять после хвоста)
                 {
-                    if (currentPtr == headPtr)
+                    if (pos)
                     {
-                        headPtr = currentPtr;
+                        if (currentPtr == headPtr)
+                        {
+                            headPtr = currentPtr->next;
+                        }
+                        if (prev)
+                            prev->next = currentPtr->next; // вырезаем элемент            
+                        currentPtr->next = pos ? pos->next : headPtr; //вставка
+                        pos->next = currentPtr;
                     }
-                    if(prev)
-                        prev->next = currentPtr->next; // вырезаем элемент            
-                    currentPtr->next = pos ? pos->next : headPtr; //вставка
-                    pos->next = currentPtr;
 
                     return;
                 }
                 pos = cur;
                 cur = cur->next;
             }
-            /*
-            if (currentPtr == tailPtr)
+
+            /*  
+                Если в списке так и не нашли место -> надо вставлять в конец
+                чтобы не проверять это в цикле, проще вынести сюда, так как в любом случае попадем сюда только в таком исходе
+             */
+           
+            if (currentPtr == headPtr)
             {
-                tailPtr = currentPtr;
+                headPtr = currentPtr->next;
             }
+
             if (prev)
-                prev->next = currentPtr->next; // вырезаем элемент            
-            currentPtr->next = pos ? pos->next : headPtr; //вставка
-            pos->next = currentPtr;
-            */
+                prev->next = currentPtr->next; // вырезаем элемент  
+
+            if (pos)
+            {
+                currentPtr->next = pos->next; //вставка
+                pos->next = currentPtr;
+            }
+            
             return;
         }
+
 
         if (currentPtr == tailPtr)
         {
@@ -337,6 +352,9 @@ void List<LISTTYPE>::sortCurrElem()
 
         if(pos)
             pos->next = currentPtr;
+
+        if (pos == tailPtr)
+            tailPtr = currentPtr;
 
         cur = currentPtr->next;
 
@@ -423,20 +441,20 @@ void List<LISTTYPE>::sort()
 template<typename LISTTYPE>
 bool List<LISTTYPE>::bubleCheck() {
     TElem<LISTTYPE> *tmp = NULL, *prev = NULL;
-    currentPtr = headPtr;
+    tmp = headPtr;
     bool flag = false, isChanged = false;
     do
     {
         flag = false;
-        currentPtr = headPtr;
-        while (currentPtr->next)
+        tmp = headPtr;
+        while (tmp->next)
         {
-            if (currentPtr->inf > currentPtr->next->inf)
+            if (tmp->inf > tmp->next->inf)
             {
                 return false;
             }
-            prev = currentPtr;
-            currentPtr = currentPtr->next;
+            prev = tmp;
+            tmp = tmp->next;
         }
     } while (flag);
 

@@ -326,7 +326,7 @@ void List<LISTTYPE>::sortCurrElem()
 
             /*  
                 Если в списке так и не нашли место -> надо вставлять в конец
-                чтобы не проверять это в цикле, проще вынести сюда, так как в любом случае попадем сюда только в таком исходе
+                чтобы не проверять это в цикле, проще вынести сюда, так как в любом случае попадем сюда только в этом случае
              */
            
             currentPtr == headPtr ? headPtr = currentPtr->next : prev->next = currentPtr->next;
@@ -546,7 +546,7 @@ outstream& operator << (outstream& output, List<LISTTYPE>& list)
     {
         output << *iter << __T(" ");
     }
-    output << "\t head: " << list.headPtr->inf << " tail: " << list.tailPtr->inf;
+    //output << "\t head: " << list.headPtr->inf << " tail: " << list.tailPtr->inf;
     return output;
 }
 

@@ -2,7 +2,8 @@
 
 Student::Student()
 {
-    _yearOfBirht = _averMark = 0;
+    _yearOfBirht = 0;
+    _averMark = 0.0;
 }
 
 Student::Student(const Student& right)

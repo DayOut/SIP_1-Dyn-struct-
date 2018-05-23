@@ -274,7 +274,7 @@ void List<LISTTYPE>::sortCurrElem()
     // currentPtr - текущий элемент (сортируемый)
     if (headPtr)
     {
-        TElem <LISTTYPE> *pos = NULL; // элемент после которого надо вставлять current
+        TElem <LISTTYPE> *pos = NULL; // элемент после которого надо вставлять currentPtr
         TElem <LISTTYPE> *prev = NULL, *cur = headPtr; // элемент перед current и временный курсор
         bool findFlag = false;
         
@@ -304,7 +304,7 @@ void List<LISTTYPE>::sortCurrElem()
                 {
                     if (pos) // проверка на случай если найденное место совпадает с текущим
                     {
-                        currentPtr == headPtr ? headPtr = currentPtr->next : prev->next = currentPtr->next;
+                        currentPtr != headPtr ? prev->next = currentPtr->next : headPtr = currentPtr->next ;
                         /*if (currentPtr == headPtr)
                         {
                             headPtr = currentPtr->next;
@@ -328,27 +328,28 @@ void List<LISTTYPE>::sortCurrElem()
                 Если в списке так и не нашли место -> надо вставлять в конец
                 чтобы не проверять это в цикле, проще вынести сюда, так как в любом случае попадем сюда только в этом случае
              */
-           
-            currentPtr == headPtr ? headPtr = currentPtr->next : prev->next = currentPtr->next;
-            /* //тернарная операция - замена следующего кода:
-            if (currentPtr == headPtr)
+            if (currentPtr != tailPtr)
             {
-                headPtr = currentPtr->next;
-            }
+                currentPtr != headPtr ? prev->next = currentPtr->next : headPtr = currentPtr->next;
+                /* //тернарная операция - замена следующего кода:
+                if (currentPtr == headPtr)
+                {
+                    headPtr = currentPtr->next;
+                }
 
-            if (prev)
-            {
-                prev->next = currentPtr->next; // вырезаем элемент  
-            }*/
+                if (prev)
+                {
+                    prev->next = currentPtr->next; // вырезаем элемент
+                }*/
 
-            if (pos)
-            {
-                currentPtr->next = pos->next; //вставка
-                pos->next = currentPtr;
-                if (pos == tailPtr)
-                    tailPtr = currentPtr;
+                //if (pos)
+                //{
+                currentPtr->next = NULL; //вставка
+                tailPtr = tailPtr->next = currentPtr;
+
+                 //currentPtr;
+                //}
             }
-            
             return;
         }
             
@@ -356,19 +357,25 @@ void List<LISTTYPE>::sortCurrElem()
             tailPtr = prev;
 
         prev->next = currentPtr->next;// вырезаем элемент
-        currentPtr->next = pos ? pos->next : headPtr;//вставка
+        //currentPtr->next = pos ? pos->next : headPtr;//вставка
 
         if (pos)
         {
+            currentPtr->next = pos->next;
             pos->next = currentPtr;
-            if (pos == tailPtr)
-                tailPtr = currentPtr;
+            //if (pos == tailPtr)
+              //  tailPtr = currentPtr;
         }
-
-        if (currentPtr->next == headPtr)
+        else
         {
+            currentPtr->next = headPtr;
             headPtr = currentPtr;
         }
+
+        //if (currentPtr->next == headPtr)
+        //{
+          //  
+        //}
 
        
     }

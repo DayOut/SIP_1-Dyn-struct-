@@ -11,32 +11,32 @@ Student::Student(const Student& right)
     *this = right;
 }
 
-void Student::setName(std::basic_string<TCHAR>& name)
+void Student::setName(std::basic_string<STRINGTYPE>& name)
 {
 	_name = name;
 }
 
-std::basic_string<TCHAR> Student::getName() const
+std::basic_string<STRINGTYPE> Student::getName() const
 {
 	return _name;
 }
 
-void Student::setLastname (std::basic_string<TCHAR>& lastname)
+void Student::setLastname (std::basic_string<STRINGTYPE>& lastname)
 {
 	_lastname = lastname;
 }
 
-std::basic_string<TCHAR> Student::getLastname() const
+std::basic_string<STRINGTYPE> Student::getLastname() const
 {
 	return _lastname;
 }
 
-void Student::setSurname(std::basic_string<TCHAR>& surname)
+void Student::setSurname(std::basic_string<STRINGTYPE>& surname)
 {
     _surname = surname;
 }
 
-std::basic_string<TCHAR> Student::getSurname() const
+std::basic_string<STRINGTYPE> Student::getSurname() const
 {
     return _surname;
 }

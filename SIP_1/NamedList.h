@@ -3,15 +3,21 @@
 #include "List.h"
 #include <string>
 
+#ifdef UNICODE 
+#define STRINGTYPE wchar_t
+#else
+#define STRINGTYPE char
+#endif
+
 template <typename LISTTYPE>
 class NamedList : public List<LISTTYPE>
 {
 public:
-                                NamedList(const std::basic_string<TCHAR>& = "");
+                                NamedList(const std::basic_string<STRINGTYPE>& = "");
                                 NamedList(NamedList<LISTTYPE>&);
 
-    void                        setListName(std::basic_string<TCHAR>&);
-    std::basic_string<TCHAR>    getListName() const;
+    void                        setListName(std::basic_string<STRINGTYPE>&);
+    std::basic_string<STRINGTYPE>getListName() const;
 
     const NamedList<LISTTYPE>&  operator=(NamedList<LISTTYPE>&);
 
@@ -22,14 +28,14 @@ public:
     bool                        operator>(NamedList<LISTTYPE>&);
     bool                        operator<(NamedList<LISTTYPE>&);
 private:
-    std::basic_string<TCHAR>    _ListName;
+    std::basic_string<STRINGTYPE>_ListName;
 };
 
 
 
 
 template <typename LISTTYPE>
-NamedList<LISTTYPE>::NamedList(const std::basic_string<TCHAR>& str)
+NamedList<LISTTYPE>::NamedList(const std::basic_string<STRINGTYPE>& str)
 {
     _ListName = str;
 }
@@ -37,18 +43,17 @@ NamedList<LISTTYPE>::NamedList(const std::basic_string<TCHAR>& str)
 template <typename LISTTYPE>
 NamedList<LISTTYPE>::NamedList(NamedList<LISTTYPE>& right)
 {
-    _ListName = right._ListName;
     *this = right;
 }
 
 template <typename LISTTYPE>
-void NamedList<LISTTYPE>::setListName(std::basic_string<TCHAR>& str)
+void NamedList<LISTTYPE>::setListName(std::basic_string<STRINGTYPE>& str)
 {
     _ListName = str;
 }
 
 template <typename LISTTYPE>
-std::basic_string<TCHAR> NamedList<LISTTYPE>::getListName() const
+std::basic_string<STRINGTYPE> NamedList<LISTTYPE>::getListName() const
 {
     return _ListName;
 }

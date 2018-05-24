@@ -11,26 +11,8 @@
 #define outstream std::ostream
 #define out std::cout
 
-#endif // UNICODE
+#endif
 
-
-/*
-    
-    operator=
-        убрать кучу проверок в первом while
-        удалять остаток левого списка не поэлементно а сразу все
-        убрать deleteCurrElem
-
-    getCurrInfPtr()
-        сделать паблик
-
-    sortCurr
-        соединить два цикла в один, использовать проход первого для поиска нужного места для вставки
-
-    оператор вывода в поток
-
-
-*/
 template <typename LISTTYPE> class ListIterator;
 
 template <typename LISTTYPE>
@@ -52,7 +34,6 @@ private:
                         *currentPtr;	
 
 public:
-    void show();
                         List();
                         List(const List<LISTTYPE>& right);
                         ~List();
@@ -553,7 +534,6 @@ outstream& operator << (outstream& output, List<LISTTYPE>& list)
     {
         output << *iter << __T(" ");
     }
-    //output << "\t head: " << list.headPtr->inf << " tail: " << list.tailPtr->inf;
     return output;
 }
 
